@@ -32,3 +32,5 @@ build/
 *.out
 *.app
 
+# Data folder
+data/
