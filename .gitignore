@@ -1,5 +1,6 @@
 # Prerequisites
 *.d
+.vscode/
 
 # Compiled Object files
 *.slo
@@ -34,3 +35,7 @@ build/
 
 # Data folder
 data/
+
+# theory folder 
+theory/
+
