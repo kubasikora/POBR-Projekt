@@ -1,7 +1,7 @@
 #include<iostream>
 #include<algorithm>
 #include<opencv2/opencv.hpp>
-#include"POBR/Functors.hxx"
+#include"POBR/Preprocessing.hxx"
 
 int main(int argc, char** argv){
     if(argc != 2){
@@ -16,8 +16,12 @@ int main(int argc, char** argv){
 	    return -1;
     }
 
-    image.forEach<cv::Vec3b>(POBR::BGR2HSVPixelConverter());
-    
+    POBR::ColorReducer reductor;
+    POBR::BGR2HSVConverter converter;
+
+    reductor.reduce(image, 10);
+    converter.convert(image);
+     
     std::vector<cv::Mat> hsv(3);
     cv::split(image, hsv);
 

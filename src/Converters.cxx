@@ -1,11 +1,15 @@
 #include<iostream>
 #include<algorithm>
 #include<opencv2/opencv.hpp>
-#include"POBR/Functors.hxx"
+#include"POBR/Preprocessing.hxx"
 
 namespace POBR {
 
-void BGR2HSVPixelConverter::operator()(cv::Vec3b& pixel, const int position[]) const {
+cv::Mat& BGR2HSVConverter::convert(cv::Mat& image){
+    image.forEach<cv::Vec3b>(BGR2HSVPixelConverter());
+}
+
+void BGR2HSVConverter::BGR2HSVPixelConverter::operator()(cv::Vec3b& pixel, const int position[]) const {
     const uchar red = pixel[2], green = pixel[1], blue = pixel[0];
     const uchar value = evalValue(red, green, blue);
     const uchar saturation = evalSaturation(red, green, blue, value);
@@ -13,11 +17,11 @@ void BGR2HSVPixelConverter::operator()(cv::Vec3b& pixel, const int position[]) c
     pixel = {hue, saturation, value};
 }
 
-uchar BGR2HSVPixelConverter::evalValue(const uchar red, const uchar green, const uchar blue) const {
+uchar BGR2HSVConverter::BGR2HSVPixelConverter::evalValue(const uchar red, const uchar green, const uchar blue) const {
     return std::max(std::max(red, green), blue);
 }
 
-uchar BGR2HSVPixelConverter::evalSaturation(const uchar red, const uchar green, const uchar blue, const uchar value) const {
+uchar BGR2HSVConverter::BGR2HSVPixelConverter::evalSaturation(const uchar red, const uchar green, const uchar blue, const uchar value) const {
     uchar saturation = 0;
     const uchar minimum = std::min(std::min(red,  green), blue);
     if(value)
@@ -25,7 +29,7 @@ uchar BGR2HSVPixelConverter::evalSaturation(const uchar red, const uchar green, 
     return saturation;
 }
 
-uchar BGR2HSVPixelConverter::evalHue(const uchar red, const uchar green, const uchar blue, const uchar value) const {
+uchar BGR2HSVConverter::BGR2HSVPixelConverter::evalHue(const uchar red, const uchar green, const uchar blue, const uchar value) const {
     int hue = 0;
     const int minimum = std::min(std::min(red, green), blue);
     if(minimum == value)
