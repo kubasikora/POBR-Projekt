@@ -38,39 +38,3 @@ cv::Mat& reduceColours(cv::Mat& mat, int divider){
     }
     return mat;
 }
-
-int main(int argc, char** argv){
-    if(argc != 3){
-        std::cout << "Usage: ColourSpaceReduction <imagePath> <divider>" << std::endl;
-	    return -1;
-    }
-
-    std::string filename = argv[1];
-    std::stringstream s;
-    s << argv[2];
-    int divider = 0;
-    s >> divider;
-    
-    if(!s || !divider){
-        std::cout << "Invalid divider" << std::endl;
-    }
-
-    cv::Mat image;
-    image = cv::imread(filename, cv::IMREAD_COLOR);
-    if(!image.data){
-        std::cout << "Empty image" << std::endl;
-	    return -1;
-    }
-
-    cv::namedWindow("Display image", cv::WINDOW_AUTOSIZE);
-    cv::imshow("Display image", image);
-
-    cv::Mat clone = image.clone();
-    clone = reduceColours(clone, divider);
-    
-    cv::namedWindow("Reduced image", cv::WINDOW_AUTOSIZE);
-    cv::imshow("Reduced image", clone);
-
-    cv::waitKey(0);
-    return 0;
-}
