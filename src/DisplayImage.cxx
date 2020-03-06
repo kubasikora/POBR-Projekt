@@ -2,6 +2,7 @@
 #include<algorithm>
 #include<opencv2/opencv.hpp>
 #include"POBR/Preprocessing.hxx"
+#include"POBR/Masks.hxx"
 
 int main(int argc, char** argv){
     if(argc != 2){
@@ -16,12 +17,14 @@ int main(int argc, char** argv){
 	    return -1;
     }
 
-    POBR::ColorReducer reductor;
+    POBR::ColorReducer reducer;
     POBR::BGR2HSVConverter converter;
+    POBR::HSVMask exampleMask(POBR::ChannelInterval(100, 255), POBR::ChannelInterval(0, 255), POBR::ChannelInterval(0, 255));
 
-    reductor.reduce(image, 10);
+    reducer.reduce(image, 10);
     converter.convert(image);
-     
+    exampleMask.apply(image);
+
     std::vector<cv::Mat> hsv(3);
     cv::split(image, hsv);
 

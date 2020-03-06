@@ -1,5 +1,3 @@
-#include<iostream>
-#include<algorithm>
 #include<array>
 #include<opencv2/opencv.hpp>
 
