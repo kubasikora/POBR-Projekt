@@ -51,4 +51,43 @@ uchar BGR2HSVConverter::BGR2HSVPixelConverter::evalHue(const uchar red, const uc
     return static_cast<uchar>(hue / 2);    
 }
 
+cv::Mat& HSV2BGRConverter::convert(cv::Mat& image){
+    image.forEach<cv::Vec3b>(HSV2BGRPixelConverter());
+}
+
+void HSV2BGRConverter::HSV2BGRPixelConverter::operator()(cv::Vec3b& pixel, const int position[]) const {  
+    const uchar hue = pixel[0], saturation = pixel[1], value = pixel[2];
+    const float h = hue * 2.0f;
+    const float s = saturation / 255.0f;
+    const float v = value / 255.0f;
+
+    const float c = v * s;
+    const float part = h / 60.0f;
+    const float x = c * (1 - std::fabs(std::fmod(part,2) - 1));
+    const float m = v - c;
+
+    float r,g,b;
+
+    switch(static_cast<int>(std::floor(part))){
+      case 0:
+        r = c; g = x; b = 0.0f; break;
+      case 1:
+        r = x; g = c; b = 0.0f; break;
+      case 2:
+        r = 0.0f; g = c; b = x; break;
+      case 3:
+        r = 0.0f; g = x; b = c; break;
+      case 4:
+        r = x; g = 0.0f; b = c; break;
+      case 5:
+        r = c; g = 0.0f; b = x; break;
+      default: 
+        r = c; g = 0.0f; b = x; break;
+    }
+    
+    pixel[0] = static_cast<uchar>((b+m)*255);
+    pixel[1] = static_cast<uchar>((g+m)*255);
+    pixel[2] = static_cast<uchar>((r+m)*255);
+}
+
 };
