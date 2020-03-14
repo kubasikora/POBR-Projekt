@@ -7,7 +7,7 @@ namespace POBR {
 
 
 
-ChannelInterval::ChannelInterval(const uchar lower, const uchar upper) : 
+ChannelInterval::ChannelInterval(const int lower, const int upper) : 
                                 lower_(lower), 
                                 upper_(upper) {
     if(lower >= upper)
@@ -16,27 +16,57 @@ ChannelInterval::ChannelInterval(const uchar lower, const uchar upper) :
 
 ChannelInterval::~ChannelInterval() {}
 
-const uchar ChannelInterval::getLowerBoundary() const {
+const int ChannelInterval::getLowerBoundary() const {
     return lower_;
 }
 
-const uchar ChannelInterval::getUpperBoundary() const {
+const int ChannelInterval::getUpperBoundary() const {
     return upper_;
 }
 
+const bool ChannelInterval::isInRange(const uchar pixel) const {
+    return pixel >= this->getLowerBoundary() && pixel <= this->getUpperBoundary();
+}
+
 HueInterval::HueInterval(const int lower, const int upper) : 
-    ChannelInterval(static_cast<uchar>(lower/2), static_cast<uchar>(upper/2)) {}
+                        ChannelInterval(lower, upper) {}
 
 HueInterval::~HueInterval(){}
 
-SaturationInterval::SaturationInterval(const uchar lower, const uchar upper) : 
+const bool HueInterval::isInRange(const uchar pixel) const {
+    const int normalizedPixel = static_cast<int>(pixel) * 2;
+    const int angles = 360;
+    if(lower_ >= 0 && upper_ >= 0){
+        if(lower_ <= upper_){
+            return lower_ <= normalizedPixel && normalizedPixel <= upper_;
+        } 
+        return false;
+    }
+    if(lower_ < 0 && upper_ >= 0){
+        const int newLower = angles + lower_;
+        return normalizedPixel >= newLower || normalizedPixel <= upper_;
+    }
+    if(lower_ < 0 && upper_ < 0){
+        if(upper_ < lower_) return false;
+        const int newLower = angles + lower_;
+        const int newUpper = angles + upper_;
+        return newLower <= normalizedPixel && normalizedPixel <= newUpper;  
+    }
+    if(lower_ >= 0 && upper_ < 0){
+        const int newUpper = angles + upper_;
+        return lower_ <= normalizedPixel && normalizedPixel <= newUpper;
+    }    
+    return false;
+} 
+
+SaturationInterval::SaturationInterval(const int lower, const int upper) : 
     ChannelInterval(lower, upper) {}
 
 SaturationInterval::~SaturationInterval(){}
 
 ValueInterval::~ValueInterval(){}
 
-ValueInterval::ValueInterval(const uchar lower, const uchar upper) : 
+ValueInterval::ValueInterval(const int lower, const int upper) : 
     ChannelInterval(lower, upper) {}
 
 HSVMask::HSVMask(const HueInterval hue, const SaturationInterval saturation, const ValueInterval value) :
@@ -52,8 +82,7 @@ cv::Mat& HSVMask::apply(cv::Mat& image){
 }
 
 cv::Vec3b& HSVMask::maskPixel(cv::Vec3b& pixel, const int position, const ChannelInterval& interval){
-    const bool condition = pixel[position] >= interval.getLowerBoundary() && pixel[position] <= interval.getUpperBoundary();
-    if(!condition) {
+    if(!interval.isInRange(pixel[position])) {
         pixel[0] = 0;
         pixel[1] = 0;
         pixel[2] = 0;

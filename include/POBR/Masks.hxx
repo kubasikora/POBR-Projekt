@@ -4,31 +4,33 @@ namespace POBR {
 
 class ChannelInterval {
   public: 
-    ChannelInterval(const uchar lower, const uchar upper);
-    const uchar getLowerBoundary() const;
-    const uchar getUpperBoundary() const;
+    ChannelInterval(const int lower, const int upper);
+    const int getLowerBoundary() const;
+    const int getUpperBoundary() const;
+    virtual const bool isInRange(const uchar pixel) const;
     virtual ~ChannelInterval() = 0;
 
   protected:
-    uchar lower_;
-    uchar upper_;
+    int lower_;
+    int upper_;
 };
 
 class HueInterval : public ChannelInterval {
   public:
     HueInterval(const int lower, const int upper);
+    const bool isInRange(const uchar pixel) const override;
     ~HueInterval();
 };
 
 class SaturationInterval : public ChannelInterval {
   public:
-    SaturationInterval(const uchar lower, const uchar upper);
+    SaturationInterval(const int lower, const int upper);
     ~SaturationInterval();
 };
 
 class ValueInterval : public ChannelInterval {
   public:
-    ValueInterval(const uchar lower, const uchar upper);
+    ValueInterval(const int lower, const int upper);
     ~ValueInterval();
 };
 
