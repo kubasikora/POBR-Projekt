@@ -17,6 +17,10 @@ Jako dane wejściowe muszą być wykorzystane: zdjęcia w postaci *papierowej* -
 
 Nie później niż **05.05.2020 r.** należy dostarczyć prowadzącemu i uzyskać akceptację: zestawu przykładowych danych wejściowych oraz wyboru obiektów do rozpoznawania. Uwaga: nie uzyskanie tej akceptacji w podanym terminie jest równoważne z niezaliczeniem przedmiotu.
 
+### Tematyka projektu:
+
+Projekt zakłada wykrywanie loga restauracji Burger King.
+
 ### Wykorzystanie OpenCV w zadaniu projektowym:
 
 Dostępne funkcje OpenCV
