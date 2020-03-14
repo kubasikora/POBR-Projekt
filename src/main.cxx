@@ -1,4 +1,5 @@
 #include<iostream>
+#include<sstream>
 #include<algorithm>
 #include<opencv2/opencv.hpp>
 #include"POBR/Preprocessing.hxx"
@@ -19,10 +20,18 @@ int main(int argc, char** argv){
 
     cv::resize(image, image, cv::Size(800,600));
 
+    /**
+     * - do wykrycia czerwonego: hue [-20, 20], sat [150, 255], val [100, 255]
+     * - do wykrycia niebieskiego: hue [220, 260], sat [100, 255], val [0, 255]
+     * - do wykrycia białego: hue [0, 360], sat [0, 50], val [200, 255]
+     * */
+
     POBR::ColorReducer reducer;
     POBR::BGR2HSVConverter converter;
     POBR::HSV2BGRConverter reverter;
-    POBR::HSVMask exampleMask(POBR::HueInterval(-20, 20), POBR::SaturationInterval(0, 255), POBR::ValueInterval(150, 255));
+    POBR::HSVMask exampleMask(POBR::HueInterval(-20, 20), POBR::SaturationInterval(100, 255), POBR::ValueInterval(100, 255)); // red
+    // POBR::HSVMask exampleMask(POBR::HueInterval(220, 260), POBR::SaturationInterval(130, 255), POBR::ValueInterval(100, 255)); // blue 
+    // POBR::HSVMask exampleMask(POBR::HueInterval(0, 360), POBR::SaturationInterval(0, 50), POBR::ValueInterval(200, 255)); // white
     
     reducer.reduce(image, 10);
     converter.convert(image);
