@@ -21,6 +21,8 @@ Nie później niż **05.05.2020 r.** należy dostarczyć prowadzącemu i uzyska�
 
 Projekt zakłada wykrywanie loga restauracji Burger King.
 
+![Logo BK](https://galeriamlociny.pl/app/uploads/wayfinder/url_logo/3259.png)
+
 ### Wykorzystanie OpenCV w zadaniu projektowym:
 
 Dostępne funkcje OpenCV
