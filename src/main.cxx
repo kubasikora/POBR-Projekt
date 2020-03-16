@@ -1,11 +1,12 @@
 #include<iostream>
 #include<sstream>
+#include<numeric>
 #include<algorithm>
 #include<opencv2/opencv.hpp>
 #include"POBR/Preprocessing.hxx"
 #include"POBR/Masks.hxx"
 
-int main(int argc, char** argv){    
+int main(int argc, char** argv){  
     if(argc < 2){
         std::cout << "Usage: MaskImage <imagePath>" << std::endl;
 	    return -1;
@@ -29,13 +30,15 @@ int main(int argc, char** argv){
     POBR::ColorReducer reducer;
     POBR::BGR2HSVConverter converter;
     POBR::HSV2BGRConverter reverter;
+    POBR::HistogramEqualizer equalizer;
     POBR::HSVMask exampleMask(POBR::HueInterval(-20, 20), POBR::SaturationInterval(100, 255), POBR::ValueInterval(100, 255)); // red
     // POBR::HSVMask exampleMask(POBR::HueInterval(220, 260), POBR::SaturationInterval(130, 255), POBR::ValueInterval(100, 255)); // blue 
     // POBR::HSVMask exampleMask(POBR::HueInterval(0, 360), POBR::SaturationInterval(0, 50), POBR::ValueInterval(200, 255)); // white
-    
-    reducer.reduce(image, 10);
+
     converter.convert(image);
-    exampleMask.apply(image);
+    equalizer.equalize(image);
+    reducer.reduce(image, 10);
+    // exampleMask.apply(image);
     reverter.convert(image);
 
     cv::namedWindow("image", cv::WINDOW_AUTOSIZE);

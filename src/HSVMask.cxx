@@ -5,8 +5,6 @@
 
 namespace POBR {
 
-
-
 ChannelInterval::ChannelInterval(const int lower, const int upper) : 
                                 lower_(lower), 
                                 upper_(upper) {

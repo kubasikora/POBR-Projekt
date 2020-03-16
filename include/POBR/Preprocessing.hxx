@@ -45,4 +45,14 @@ class HSV2BGRConverter : public ColorSpaceConverter {
     };
 };
 
+class HistogramEqualizer {
+  public:
+    cv::Mat& equalize(cv::Mat& image); 
+  
+  private:
+    const std::array<int, 256> createHistogram(cv::Mat& image) const;
+    const std::array<int, 256> createLookuptable(const std::array<int, 256> histogram, const int pixelCount) const;
+    cv::Mat& applyLUT(cv::Mat& image, const std::array<int, 256> lut) const;
+};
+
 };
