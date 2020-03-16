@@ -31,14 +31,18 @@ int main(int argc, char** argv){
     POBR::BGR2HSVConverter converter;
     POBR::HSV2BGRConverter reverter;
     POBR::HistogramEqualizer equalizer;
-    POBR::HSVMask exampleMask(POBR::HueInterval(-20, 20), POBR::SaturationInterval(100, 255), POBR::ValueInterval(100, 255)); // red
-    // POBR::HSVMask exampleMask(POBR::HueInterval(220, 260), POBR::SaturationInterval(130, 255), POBR::ValueInterval(100, 255)); // blue 
-    // POBR::HSVMask exampleMask(POBR::HueInterval(0, 360), POBR::SaturationInterval(0, 50), POBR::ValueInterval(200, 255)); // white
 
-    converter.convert(image);
-    equalizer.equalize(image);
+    POBR::HSVMask redMask(POBR::HueInterval(-20, 20), POBR::SaturationInterval(100, 255), POBR::ValueInterval(100, 255)); // red
+    POBR::HSVMask blueMask(POBR::HueInterval(220, 260), POBR::SaturationInterval(130, 255), POBR::ValueInterval(100, 255)); // blue 
+    POBR::HSVMask whiteMask(POBR::HueInterval(0, 360), POBR::SaturationInterval(0, 50), POBR::ValueInterval(200, 255)); // white
+
+    POBR::MaskApplier masks;
+    masks.add(redMask).add(blueMask).add(whiteMask);
+
     reducer.reduce(image, 10);
-    // exampleMask.apply(image);
+    // equalizer.equalize(image);
+    converter.convert(image);
+    masks.apply(image);
     reverter.convert(image);
 
     cv::namedWindow("image", cv::WINDOW_AUTOSIZE);

@@ -47,4 +47,12 @@ class HSVMask {
     const ValueInterval valueInterval_;
 };
 
+class MaskApplier {
+  public:
+    MaskApplier& add(HSVMask mask);
+    cv::Mat& apply(cv::Mat& image);
+  private:
+    std::vector<HSVMask> masks_;
+};
+
 };

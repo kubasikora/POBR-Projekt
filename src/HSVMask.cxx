@@ -2,6 +2,7 @@
 #include"POBR/Masks.hxx"
 #include<iostream>
 #include<exception>
+#include<numeric>
 
 namespace POBR {
 
@@ -86,6 +87,25 @@ cv::Vec3b& HSVMask::maskPixel(cv::Vec3b& pixel, const int position, const Channe
         pixel[2] = 0;
     }   
     return pixel;    
+}
+
+MaskApplier& MaskApplier::add(HSVMask mask){
+    masks_.push_back(mask);
+    return *this;
+}
+
+cv::Mat& MaskApplier::apply(cv::Mat& image){
+    if(masks_.empty())
+        return image;
+
+    std::vector<cv::Mat> partials;
+    std::for_each(masks_.begin(), masks_.end(), [&partials, &image](HSVMask& mask){
+        cv::Mat partialImage = image.clone();
+        partials.push_back(mask.apply(partialImage));
+    });
+
+    image = std::accumulate(partials.begin(), partials.end(), cv::Mat(image.rows, image.cols, image.type()));
+    return image;
 }
 
 };
