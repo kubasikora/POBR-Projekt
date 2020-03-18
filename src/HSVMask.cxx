@@ -104,8 +104,19 @@ cv::Mat& MaskApplier::apply(cv::Mat& image){
         partials.push_back(mask.apply(partialImage));
     });
 
-    image = std::accumulate(partials.begin(), partials.end(), cv::Mat(image.rows, image.cols, image.type()));
+    auto imageFolder = [](cv::Mat& x, cv::Mat& y){
+        return x | y;
+    };
+
+    image = std::accumulate(partials.begin(), partials.end(), cv::Mat(image.rows, image.cols, image.type()), imageFolder);
     return image;
+}
+
+HSVMask MaskFactory::build(){
+    const HueInterval h(config_.at("lowerHue"), config_.at("upperHue"));
+    const SaturationInterval s(config_.at("lowerSaturation"), config_.at("upperSaturation"));
+    const ValueInterval v(config_.at("lowerValue"), config_.at("upperValue"));
+    return HSVMask(h, s, v);
 }
 
 };

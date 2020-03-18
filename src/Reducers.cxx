@@ -5,9 +5,9 @@
 
 namespace POBR {
 
-cv::Mat& ColorReducer::reduce(cv::Mat& image, const int divider){
+cv::Mat& ColorReducer::reduce(cv::Mat& image){
     const int channels = image.channels();
-    const std::array<uchar, 256> lookupTable = createLookupTable(divider);
+    const std::array<uchar, 256> lookupTable = createLookupTable(divider_);
 
     if(channels == GRAYSCALE){
         reduceSingleChannel(image, lookupTable);

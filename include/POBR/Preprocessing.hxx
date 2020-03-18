@@ -25,13 +25,15 @@ class BGR2HSVConverter : public ColorSpaceConverter {
 
 class ColorReducer {
   public:
-    cv::Mat& reduce(cv::Mat& image, const int divider);
+    ColorReducer(const int divider) : divider_(divider) {};
+    cv::Mat& reduce(cv::Mat& image);
   private:
     const std::array<uchar, 256> createLookupTable(const int divider);
     cv::Mat& reduceSingleChannel(cv::Mat& image, const std::array<uchar, 256> lookupTable);
     cv::Mat& reduceTripleChannel(cv::Mat& image, const std::array<uchar, 256> lookupTable);
     static const uchar GRAYSCALE = 1;
     static const uchar COLORSCALE = 3;
+    const int divider_;
 };
 
 class HSV2BGRConverter : public ColorSpaceConverter {

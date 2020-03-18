@@ -1,0 +1,55 @@
+equalizeHistogram: true
+
+reduceColors: false # czy redukować kolory
+
+colorReducerRatio: 1 # współczynnik redukcji kolorów
+
+maskImage: true # czy maskowac
+
+# parametry czerwonej maski
+useRed: true
+redMask: 
+  lowerHue: -20
+  upperHue: 20
+
+  lowerSaturation: 150
+  upperSaturation: 255
+
+  lowerValue: 100
+  upperValue: 255
+
+# parametry niebieskiej maski
+useBlue: true
+blueMask:
+  lowerHue: 220
+  upperHue: 260
+
+  lowerSaturation: 100
+  upperSaturation: 255
+
+  lowerValue: 0
+  upperValue: 255
+
+# parametry białej maski
+useWhite: true
+whiteMask:
+  lowerHue: 0
+  upperHue: 360
+
+  lowerSaturation: 0
+  upperSaturation: 50
+
+  lowerValue: 200
+  upperValue: 255
+
+# parametry białej maski
+useYellow: true
+yellowMask:
+  lowerHue: 20
+  upperHue: 40
+
+  lowerSaturation: 150
+  upperSaturation: 255
+
+  lowerValue: 100
+  upperValue: 255

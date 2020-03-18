@@ -1,8 +1,6 @@
-#include<iostream>
-#include<sstream>
-#include<numeric>
-#include<algorithm>
 #include<opencv2/opencv.hpp>
+#include<yaml-cpp/yaml.h>
+#include"Config.hxx"
 #include"POBR/Preprocessing.hxx"
 #include"POBR/Masks.hxx"
 
@@ -10,6 +8,15 @@ int main(int argc, char** argv){
     if(argc < 2){
         std::cout << "Usage: MaskImage <imagePath>" << std::endl;
 	    return -1;
+    }
+
+    std::unique_ptr<AppConfig> config;
+
+    try {
+        config = std::make_unique<AppConfig>("../config.yaml");
+    } catch(YAML::BadFile& ex){
+        std::cout << "Incorrect config file" << std::endl;
+        return -1;
     }
 
     cv::Mat image;
@@ -21,28 +28,39 @@ int main(int argc, char** argv){
 
     cv::resize(image, image, cv::Size(800,600));
 
-    /**
-     * - do wykrycia czerwonego: hue [-20, 20], sat [150, 255], val [100, 255]
-     * - do wykrycia niebieskiego: hue [220, 260], sat [100, 255], val [0, 255]
-     * - do wykrycia białego: hue [0, 360], sat [0, 50], val [200, 255]
-     * */
-
-    POBR::ColorReducer reducer;
     POBR::BGR2HSVConverter converter;
-    POBR::HSV2BGRConverter reverter;
-    POBR::HistogramEqualizer equalizer;
-
-    POBR::HSVMask redMask(POBR::HueInterval(-20, 20), POBR::SaturationInterval(100, 255), POBR::ValueInterval(100, 255)); // red
-    POBR::HSVMask blueMask(POBR::HueInterval(220, 260), POBR::SaturationInterval(130, 255), POBR::ValueInterval(100, 255)); // blue 
-    POBR::HSVMask whiteMask(POBR::HueInterval(0, 360), POBR::SaturationInterval(0, 50), POBR::ValueInterval(200, 255)); // white
-
-    POBR::MaskApplier masks;
-    masks.add(redMask).add(blueMask).add(whiteMask);
-
-    reducer.reduce(image, 10);
-    // equalizer.equalize(image);
     converter.convert(image);
-    masks.apply(image);
+
+    if(config->equalizeHistogram) {
+        POBR::HistogramEqualizer equalizer;
+        equalizer.equalize(image);
+    }
+    if(config->reduceColors) {
+        POBR::ColorReducer reducer(config->colorReducerRatio);
+        reducer.reduce(image);
+    }
+    if(config->maskImage){
+        POBR::MaskApplier masks;
+        if(config->colorMasks["red"]){
+            POBR::HSVMask redMask = POBR::MaskFactory(config->redMask).build();
+            masks.add(redMask);
+        }
+        if(config->colorMasks["blue"]){
+            POBR::HSVMask blueMask = POBR::MaskFactory(config->blueMask).build();
+            masks.add(blueMask);
+        }
+        if(config->colorMasks["white"]){
+            POBR::HSVMask whiteMask = POBR::MaskFactory(config->whiteMask).build();
+            masks.add(whiteMask);
+        }
+        if(config->colorMasks["yellow"]){
+            POBR::HSVMask yellowMask = POBR::MaskFactory(config->yellowMask).build();
+            masks.add(yellowMask);
+        }
+        masks.apply(image);
+    }
+    
+    POBR::HSV2BGRConverter reverter;
     reverter.convert(image);
 
     cv::namedWindow("image", cv::WINDOW_AUTOSIZE);

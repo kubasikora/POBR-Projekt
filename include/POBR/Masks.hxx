@@ -55,4 +55,13 @@ class MaskApplier {
     std::vector<HSVMask> masks_;
 };
 
+class MaskFactory {
+  public:
+    MaskFactory(std::map<std::string, int> config) : config_(config) {};
+    HSVMask build();
+
+  private:
+    const std::map<std::string, int> config_;
+};
+
 };
