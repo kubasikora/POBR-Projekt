@@ -7,7 +7,7 @@ colorReducerRatio: 1 # współczynnik redukcji kolorów
 maskImage: true # czy maskowac
 
 # parametry czerwonej maski
-useRed: true
+useRed: false
 redMask: 
   lowerHue: -20
   upperHue: 20
@@ -19,7 +19,7 @@ redMask:
   upperValue: 255
 
 # parametry niebieskiej maski
-useBlue: true
+useBlue: false
 blueMask:
   lowerHue: 220
   upperHue: 260
@@ -43,7 +43,7 @@ whiteMask:
   upperValue: 255
 
 # parametry żółtej maski
-useYellow: true
+useYellow: false
 yellowMask:
   lowerHue: 20
   upperHue: 60
