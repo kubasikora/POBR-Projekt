@@ -42,14 +42,14 @@ whiteMask:
   lowerValue: 200
   upperValue: 255
 
-# parametry białej maski
+# parametry żółtej maski
 useYellow: true
 yellowMask:
   lowerHue: 20
-  upperHue: 40
+  upperHue: 60
 
-  lowerSaturation: 150
+  lowerSaturation: 100
   upperSaturation: 255
 
-  lowerValue: 100
+  lowerValue: 180
   upperValue: 255
