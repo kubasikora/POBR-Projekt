@@ -13,8 +13,10 @@
 *.toc
 *.xml
 *-blx.bib
-*.pdf
+main.pdf
 *.nav
 *.snm
 
+
 build/
+pdfs/
