@@ -25,9 +25,9 @@ Model HSV czerpie swoją nazwę od pierwszych liter angielskich nazw składowyc
 Podobnym modelem do HSV jest model HSL (\textit{Hue, Saturation, Lightness}). Oba modele jednakowo definiują zmienną barwową H, natomiast różnią się w~definicji pozostałych zmiennych. Największe różnice zachodzą w~definicji jasności/wartości koloru. W~modelu HSV, wartość $0\%$ reprezentuje kolor czarny, natomiast wartość $100\%$ kolor w pełni nasycony. W~modelu HSL, w~pełni nasycone kolory mają wartość jasności $50\%$, natomiast kolory czarny i~biały mają odpowiednio $0\%$ oraz $100\%$. Mimo iż model HSL bardziej intuicyjnie przedstawia jasność koloru, uznałem że bardziej odpowiedni do automatycznego przetwarzania będzie model HSV.
 
 \subsection{Implementacja konwersji}
-Konwersja piksela w~modelu RGB $(R, G, B)$ do modelu HSV $(H,S,V)$ jest operacją punktową i~nie wymaga informacji na temat wartości innych pikseli. W~programie, konwersję przeprowadza obiekt klasy \texttt{POBR::BGR2HSVConverter}. 
+Konwersja piksela w~modelu RGB $(R, G, B)$ do modelu HSV $(H,S,V)$ jest operacją punktową i~nie wymaga informacji na temat wartości innych pikseli. W~programie, konwersję przeprowadza obiekt klasy \texttt{POBR::BGR2HSVConverter}.  
 
-Pierwszym krokiem algorytmu konwersji jest obliczenie jasności $V$, zgodnie ze wzorem \ref{eqn:value}.
+Zaimplementowany algorytm konwersji bazuje na podstawowym algorytmie z~OpenCV~\cite{opencv-conversions}. Pierwszym jego krokiem jest obliczenie jasności $V$, zgodnie ze wzorem \ref{eqn:value}.
 \smallskip
 \begin{equation}
     \label{eqn:value}
