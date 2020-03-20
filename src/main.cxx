@@ -26,7 +26,8 @@ int main(int argc, char** argv){
 	    return -1;
     }
 
-    cv::resize(image, image, cv::Size(800,600));
+    POBR::BilinearInterpolationResizer resizer(config->imageSize);
+    image = resizer.resize(image);
 
     POBR::BGR2HSVConverter converter;
     converter.convert(image);

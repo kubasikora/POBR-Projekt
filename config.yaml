@@ -6,8 +6,12 @@ colorReducerRatio: 1 # współczynnik redukcji kolorów
 
 maskImage: true # czy maskowac
 
+# rozmiar analizowanego zdjęcia
+imageHeight: 400
+imageWidth: 400
+
 # parametry czerwonej maski
-useRed: false
+useRed: true
 redMask: 
   lowerHue: -20
   upperHue: 20
@@ -19,7 +23,7 @@ redMask:
   upperValue: 255
 
 # parametry niebieskiej maski
-useBlue: false
+useBlue: true
 blueMask:
   lowerHue: 220
   upperHue: 260
@@ -43,7 +47,7 @@ whiteMask:
   upperValue: 255
 
 # parametry żółtej maski
-useYellow: false
+useYellow: true
 yellowMask:
   lowerHue: 20
   upperHue: 60

@@ -12,6 +12,7 @@ struct AppConfig {
     bool reduceColors;
     bool equalizeHistogram;
     bool maskImage;
+    std::pair<int, int> imageSize;
 
   private:
     void extractParams(const YAML::Node node, std::map<std::string, int>& map);

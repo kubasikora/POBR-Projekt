@@ -8,6 +8,9 @@ AppConfig::AppConfig(const std::string configPath){
     maskImage = config["maskImage"].as<bool>(false);
     colorReducerRatio = config["colorReducerRatio"].as<int>(10);
 
+    imageSize = std::make_pair<int, int>(config["imageHeight"].as<int>(600), 
+                                         config["imageWidth"].as<int>(800));
+
     colorMasks["red"] = config["useRed"].as<bool>(false);
     colorMasks["blue"] = config["useBlue"].as<bool>(false);
     colorMasks["white"] = config["useWhite"].as<bool>(false);

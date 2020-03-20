@@ -6,6 +6,7 @@ namespace POBR {
 class ColorSpaceConverter {
   public:
     virtual cv::Mat& convert(cv::Mat& image) = 0; 
+    virtual ~ColorSpaceConverter() {}
 };
 
 class BGR2HSVConverter : public ColorSpaceConverter {
@@ -55,6 +56,30 @@ class HistogramEqualizer {
     const std::array<int, 256> createHistogram(cv::Mat& image) const;
     const std::array<int, 256> createLookuptable(const std::array<int, 256> histogram, const int pixelCount) const;
     cv::Mat& applyLUT(cv::Mat& image, const std::array<int, 256> lut) const;
+};
+
+class BilinearInterpolationResizer{
+  public:
+    BilinearInterpolationResizer(const int x, const int y) : 
+      xSize_(x), ySize_(y) {}
+    BilinearInterpolationResizer(const std::pair<int, int> size) :
+      xSize_(size.first), ySize_(size.second) {}
+    cv::Mat resize(cv::Mat& image);
+    ~BilinearInterpolationResizer() {};  
+  private:
+    const int xSize_;
+    const int ySize_;
+};
+
+class EdgeAdaptiveInterpolationResizer {
+  public:
+    EdgeAdaptiveInterpolationResizer(const int x, const int y) : 
+      xSize_(x), ySize_(y) {}
+    cv::Mat resize(cv::Mat& image);
+    ~EdgeAdaptiveInterpolationResizer() {};
+  private:
+    const int xSize_;
+    const int ySize_;
 };
 
 };
