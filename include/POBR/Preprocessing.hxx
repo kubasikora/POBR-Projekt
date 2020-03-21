@@ -89,6 +89,28 @@ class BilinearInterpolationResizer {
     const int ySize_;
 };
 
+class BicubicInterpolationResizer {
+  public:
+    BicubicInterpolationResizer(const int x, const int y, const double A) : 
+      xSize_(x), ySize_(y), A_(A) {}
+    BicubicInterpolationResizer(const std::pair<int, int> size, const double A) :
+      xSize_(size.first), ySize_(size.second), A_(A) {}
+
+    cv::Mat resize(cv::Mat& image);
+
+  private:
+    const std::array<double, 4> evaluateCoefficients(const double x);
+    std::array<std::array<double, 3>, 4> createIntermediaryMatrix();
+    const uchar norm(const double n);
+    const int checkRowIfExist(const cv::Mat& image, const int x0, const int i);
+    const int checkColIfExist(const cv::Mat& image, const int yo, const int i);
+    
+  
+    const double A_;
+    const int xSize_;
+    const int ySize_;
+};
+
 class EdgeAdaptiveInterpolationResizer {
   public:
     EdgeAdaptiveInterpolationResizer(const int x, const int y) : 

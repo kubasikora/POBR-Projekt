@@ -1,4 +1,7 @@
 #include<algorithm>
+#include<array>
+#include<experimental/array>
+#include<numeric>
 #include"POBR/Preprocessing.hxx"
 
 namespace POBR {
@@ -9,8 +12,7 @@ cv::Mat BilinearInterpolationResizer::resize(cv::Mat& image){
 
     resizedImage.forEach<cv::Vec3b>([&](cv::Vec3b& pixel, const int position[]){
         const int i = position[0], j = position[1];
-        const double x = i*xRatio;
-        const double y = j*yRatio;
+        const double x = i*xRatio, y = j*yRatio;
         const int x0 = x, y0 = y; // floor 
         const double dx = x - x0, dy = y - y0; // frac
         
@@ -89,6 +91,83 @@ const double NearestNeighbourInterpolationResizer::findDistance(const double x, 
     return std::sqrt(std::pow(position[0] - x, 2) + std::pow(position[1] - y, 2));
 }
 
+const std::array<double, 4> BicubicInterpolationResizer::evaluateCoefficients(const double x){
+    std::array<double, 4> coeffs;
+    coeffs[0] = ((A_*(x + 1) - 5*A_)*(x + 1) + 8*A_)*(x + 1) - 4*A_;
+    coeffs[1] = ((A_ + 2)*x - (A_ + 3))*x*x + 1;
+    coeffs[2] = ((A_ + 2)*(1 - x) - (A_ + 3))*(1 - x)*(1 - x) + 1;
+    coeffs[3] = 1.0 - coeffs[0] - coeffs[1] - coeffs[2];
+
+    return coeffs;
+}
+
+const int BicubicInterpolationResizer::checkRowIfExist(const cv::Mat& image, const int x0, const int i){
+    if(x0 + i > image.rows && x0 + i < 0)
+        return x0;
+    else 
+        return x0 + i;
+}
+
+const int BicubicInterpolationResizer::checkColIfExist(const cv::Mat& image, const int y0, const int i){
+    if(y0 + i > image.cols && y0 + i < 0)
+        return y0;
+    else 
+        return y0 + i;
+}
+
+std::array<std::array<double, 3>, 4> BicubicInterpolationResizer::createIntermediaryMatrix(){
+    std::array<std::array<double, 3>, 4> intermediaryResults;
+    for(auto j = 0; j < 4; ++j){
+        for(auto k = 0; k < 3; ++k)
+            intermediaryResults[j][k] = 0.0;
+    }
+    return intermediaryResults;
+}
+
+cv::Mat BicubicInterpolationResizer::resize(cv::Mat& image){
+    const double xRatio = static_cast<double>(image.rows) / static_cast<double>(xSize_), yRatio = static_cast<double>(image.cols) / static_cast<double>(ySize_);
+    cv::Mat resizedImage(xSize_, ySize_, image.type());
+
+    resizedImage.forEach<cv::Vec3b>([&](cv::Vec3b& pixel, const int position[]){
+        const int i = position[0], j = position[1];
+        const double x = i*xRatio, y = j*yRatio;
+        const int x0 = x, y0 = y; // floor 
+        const double dx = x - x0, dy = y - y0; // frac
+        
+        const auto xCoeffs = evaluateCoefficients(dx);
+        const auto yCoeffs = evaluateCoefficients(dy);
+
+        // interpolate in x axis
+        std::array<std::array<double, 3>, 4> intermediaryResults = createIntermediaryMatrix();
+        for(auto i = 0; i < 4; ++i){
+            for(auto j = 0; j < 4; ++j){
+                const cv::Vec3b p = image.at<cv::Vec3b>(checkColIfExist(image, x0, j-1), checkRowIfExist(image, y0, i-1));
+                for(auto k = 0; k < 3; ++k)
+                    intermediaryResults[i][k] += p[k] * xCoeffs[j]; 
+            }
+        }   
+
+        // interpolate in y axis
+        std::array<double, 3> result = std::experimental::make_array<double>(0, 0, 0);
+        for(auto i = 0; i < 4; ++i){
+            for(auto j = 0; j < 3; ++j)
+            result[j] += intermediaryResults[i][j] * yCoeffs[i];
+        }
+
+        // norm pixel
+        for(auto i = 0; i < 3; ++i){
+            pixel[i] = norm(result[i]);
+        }
+    });
+    image = resizedImage;
+    return image;
+}
+
+const uchar BicubicInterpolationResizer::norm(const double n){
+    if(n > 255) return 255;
+    if(n < 0) return 0;
+    return n;
+}
 
 cv::Mat EdgeAdaptiveInterpolationResizer::resize(cv::Mat& image){
     return image;

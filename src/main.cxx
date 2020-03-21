@@ -28,21 +28,10 @@ int main(int argc, char** argv){
 
     cv::Mat y;
 
-    cv::resize(image, y, cv::Size(config->imageSize.first, config->imageSize.second), 0, 0, cv::INTER_LINEAR);
+    cv::resize(image, y, cv::Size(config->imageSize.first, config->imageSize.second), 0, 0, cv::INTER_CUBIC);
 
-    POBR::NearestNeighbourInterpolationResizer resizer(config->imageSize);
+    POBR::BicubicInterpolationResizer resizer(config->imageSize, config->bicubic);
     image = resizer.resize(image);
-
-    cv::namedWindow("image", cv::WINDOW_AUTOSIZE);
-    cv::imshow("image", image);
-
-    
-    cv::namedWindow("cv", cv::WINDOW_AUTOSIZE);
-    cv::imshow("cv", y);
-
-
-    cv::waitKey(0);
-    return 0;
 
     POBR::BGR2HSVConverter converter;
     converter.convert(image);

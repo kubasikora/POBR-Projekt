@@ -7,6 +7,7 @@ AppConfig::AppConfig(const std::string configPath){
     equalizeHistogram = config["equalizeHistogram"].as<bool>(false);
     maskImage = config["maskImage"].as<bool>(false);
     colorReducerRatio = config["colorReducerRatio"].as<int>(10);
+    bicubic = config["bicubicRatio"].as<double>(-0.75);
 
     imageSize = std::make_pair<int, int>(config["imageHeight"].as<int>(600), 
                                          config["imageWidth"].as<int>(800));
