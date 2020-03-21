@@ -58,15 +58,30 @@ class HistogramEqualizer {
     cv::Mat& applyLUT(cv::Mat& image, const std::array<int, 256> lut) const;
 };
 
-class BilinearInterpolationResizer{
+class NearestNeighbourInterpolationResizer {
+  public:
+    NearestNeighbourInterpolationResizer(const int x, const int y) :
+      xSize_(x), ySize_(y) {}
+    NearestNeighbourInterpolationResizer(const std::pair<int, int> size) :
+      xSize_(size.first), ySize_(size.second) {}
+    cv::Mat& resize(cv::Mat& image);
+
+  private:  
+    const int xSize_;
+    const int ySize_;
+};
+
+class BilinearInterpolationResizer {
   public:
     BilinearInterpolationResizer(const int x, const int y) : 
       xSize_(x), ySize_(y) {}
     BilinearInterpolationResizer(const std::pair<int, int> size) :
       xSize_(size.first), ySize_(size.second) {}
     cv::Mat resize(cv::Mat& image);
-    ~BilinearInterpolationResizer() {};  
   private:
+    const double interpolate(const double p1, const double p2, const double d);
+    const uchar norm(const double n);
+
     const int xSize_;
     const int ySize_;
 };

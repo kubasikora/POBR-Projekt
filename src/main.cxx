@@ -26,8 +26,23 @@ int main(int argc, char** argv){
 	    return -1;
     }
 
+    cv::Mat y;
+
+    cv::resize(image, y, cv::Size(config->imageSize.first, config->imageSize.second), 0, 0, cv::INTER_LINEAR);
+
     POBR::BilinearInterpolationResizer resizer(config->imageSize);
     image = resizer.resize(image);
+
+    cv::namedWindow("image", cv::WINDOW_AUTOSIZE);
+    cv::imshow("image", image);
+
+    
+    cv::namedWindow("cv", cv::WINDOW_AUTOSIZE);
+    cv::imshow("cv", y);
+
+
+    cv::waitKey(0);
+    return 0;
 
     POBR::BGR2HSVConverter converter;
     converter.convert(image);
