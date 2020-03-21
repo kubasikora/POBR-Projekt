@@ -7,8 +7,8 @@ colorReducerRatio: 1 # współczynnik redukcji kolorów
 maskImage: true # czy maskowac
 
 # rozmiar analizowanego zdjęcia
-imageHeight: 1000
-imageWidth: 1000
+imageHeight: 100
+imageWidth: 100
 
 # parametry czerwonej maski
 useRed: true

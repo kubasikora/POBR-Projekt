@@ -30,7 +30,7 @@ int main(int argc, char** argv){
 
     cv::resize(image, y, cv::Size(config->imageSize.first, config->imageSize.second), 0, 0, cv::INTER_LINEAR);
 
-    POBR::BilinearInterpolationResizer resizer(config->imageSize);
+    POBR::NearestNeighbourInterpolationResizer resizer(config->imageSize);
     image = resizer.resize(image);
 
     cv::namedWindow("image", cv::WINDOW_AUTOSIZE);

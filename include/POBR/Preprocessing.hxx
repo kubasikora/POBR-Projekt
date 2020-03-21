@@ -67,6 +67,8 @@ class NearestNeighbourInterpolationResizer {
     cv::Mat& resize(cv::Mat& image);
 
   private:  
+    const double findDistance(const double x, const double y, const int* position);
+
     const int xSize_;
     const int ySize_;
 };
@@ -78,6 +80,7 @@ class BilinearInterpolationResizer {
     BilinearInterpolationResizer(const std::pair<int, int> size) :
       xSize_(size.first), ySize_(size.second) {}
     cv::Mat resize(cv::Mat& image);
+
   private:
     const double interpolate(const double p1, const double p2, const double d);
     const uchar norm(const double n);
