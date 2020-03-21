@@ -1,61 +1,58 @@
-equalizeHistogram: true
+preprocessing:
+  prescale:
+    algorithm: Bilinear
+    imageHeight: 1000
+    imageWidth: 1000
+    bicubicRatio: -0.75
+  
+  operations:
+    equalizeHistogram: true
+    reduceColors: false
+    colorReducerRatio: 10
+ 
+segmentation:
+  maskImage: false
 
-reduceColors: false # czy redukować kolory
+  useRed: true
+  redMask: 
+    lowerHue: -20
+    upperHue: 20
 
-colorReducerRatio: 1 # współczynnik redukcji kolorów
+    lowerSaturation: 150
+    upperSaturation: 255
 
-maskImage: true # czy maskowac
+    lowerValue: 100
+    upperValue: 255
 
-bicubicRatio: -0.75
+  useBlue: true
+  blueMask:
+    lowerHue: 220
+    upperHue: 260
 
-# rozmiar analizowanego zdjęcia
-imageHeight: 1200
-imageWidth: 200
+    lowerSaturation: 100
+    upperSaturation: 255
 
-# parametry czerwonej maski
-useRed: true
-redMask: 
-  lowerHue: -20
-  upperHue: 20
+    lowerValue: 0
+    upperValue: 255
 
-  lowerSaturation: 150
-  upperSaturation: 255
+  useWhite: true
+  whiteMask:
+    lowerHue: 0
+    upperHue: 360
 
-  lowerValue: 100
-  upperValue: 255
+    lowerSaturation: 0
+    upperSaturation: 50
 
-# parametry niebieskiej maski
-useBlue: true
-blueMask:
-  lowerHue: 220
-  upperHue: 260
+    lowerValue: 200
+    upperValue: 255
 
-  lowerSaturation: 100
-  upperSaturation: 255
+  useYellow: true
+  yellowMask:
+    lowerHue: 20
+    upperHue: 60
 
-  lowerValue: 0
-  upperValue: 255
+    lowerSaturation: 100
+    upperSaturation: 255
 
-# parametry białej maski
-useWhite: true
-whiteMask:
-  lowerHue: 0
-  upperHue: 360
-
-  lowerSaturation: 0
-  upperSaturation: 50
-
-  lowerValue: 200
-  upperValue: 255
-
-# parametry żółtej maski
-useYellow: true
-yellowMask:
-  lowerHue: 20
-  upperHue: 60
-
-  lowerSaturation: 100
-  upperSaturation: 255
-
-  lowerValue: 180
-  upperValue: 255
+    lowerValue: 180
+    upperValue: 255

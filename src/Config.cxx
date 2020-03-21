@@ -3,42 +3,68 @@
 AppConfig::AppConfig(const std::string configPath){
     const YAML::Node config = YAML::LoadFile(configPath);
 
-    reduceColors = config["reduceColors"].as<bool>(false);
-    equalizeHistogram = config["equalizeHistogram"].as<bool>(false);
-    maskImage = config["maskImage"].as<bool>(false);
-    colorReducerRatio = config["colorReducerRatio"].as<int>(10);
-    bicubic = config["bicubicRatio"].as<double>(-0.75);
+    const YAML::Node preprocessingConfig = config["preprocessing"];
+    const YAML::Node segmentationConfig = config["segmentation"];
 
-    imageSize = std::make_pair<int, int>(config["imageHeight"].as<int>(600), 
-                                         config["imageWidth"].as<int>(800));
-
-    colorMasks["red"] = config["useRed"].as<bool>(false);
-    colorMasks["blue"] = config["useBlue"].as<bool>(false);
-    colorMasks["white"] = config["useWhite"].as<bool>(false);
-    colorMasks["yellow"] = config["useYellow"].as<bool>(false);
-
-    if(colorMasks["red"]){
-        const YAML::Node redNode = config["redMask"];
-        extractParams(redNode, redMask);
-    }
-    
-    if(colorMasks["blue"]){
-        const YAML::Node blueNode = config["blueMask"];
-        extractParams(blueNode, blueMask);
-    }
-
-    if(colorMasks["white"]){
-        const YAML::Node whiteNode = config["whiteMask"];
-        extractParams(whiteNode, whiteMask);
-    }
-
-    if(colorMasks["yellow"]){
-        const YAML::Node yellowNode = config["yellowMask"];
-        extractParams(yellowNode, yellowMask);
-    }
+    preprocessing = extractPreprocessingParams(preprocessingConfig);
+    segmentation = extractSegmentationParams(segmentationConfig);
 }
 
-void AppConfig::extractParams(const YAML::Node node, std::map<std::string, int>& map){
+
+PreprocessingConfig AppConfig::extractPreprocessingParams(const YAML::Node node){
+    PreprocessingConfig config;
+    const YAML::Node prescaler = node["prescale"];
+    config.size = std::make_pair<int, int>(prescaler["imageHeight"].as<int>(600), prescaler["imageWidth"].as<int>(800));
+    config.bicubic = prescaler["bicubicRatio"].as<double>(-0.75);
+    const std::string algorithmName = prescaler["algorithm"].as<std::string>("Bicubic");
+    std::map<std::string, AlgorithmType> algorithms = {
+        { "NearestNeighbour", AlgorithmType::NearestNeighbour },
+        { "Bilinear", AlgorithmType::Bilinear },
+        { "Bicubic", AlgorithmType::Bicubic }
+    };
+    config.algorithm = algorithms[algorithmName];
+
+    const YAML::Node operations = node["operations"];
+    config.equalizeHistogram = operations["equalizeHistogram"].as<bool>(false);
+    config.reduceColors = operations["reduceColors"].as<bool>(false);
+    config.colorReducerRatio = operations["colorReducerRatio"].as<int>(10);
+
+    return config;
+}
+
+SegmentationConfig AppConfig::extractSegmentationParams(const YAML::Node node){
+    SegmentationConfig config;
+    config.maskImage = node["maskImage"].as<bool>(false);
+    config.colorMasks["red"] = node["useRed"].as<bool>(false);
+    config.colorMasks["blue"] = node["useBlue"].as<bool>(false);
+    config.colorMasks["white"] = node["useWhite"].as<bool>(false);
+    config.colorMasks["yellow"] = node["useYellow"].as<bool>(false);
+
+    if(config.colorMasks["red"]){
+        const YAML::Node redNode = node["redMask"];
+        config.extractParams(redNode, config.redMask);
+    }
+    
+    if(config.colorMasks["blue"]){
+        const YAML::Node blueNode = node["blueMask"];
+        config.extractParams(blueNode, config.blueMask);
+    }
+
+    if(config.colorMasks["white"]){
+        const YAML::Node whiteNode = node["whiteMask"];
+        config.extractParams(whiteNode, config.whiteMask);
+    }
+
+    if(config.colorMasks["yellow"]){
+        const YAML::Node yellowNode = node["yellowMask"];
+        config.extractParams(yellowNode, config.yellowMask);
+    }
+
+    return config;
+}
+
+
+void SegmentationConfig::extractParams(const YAML::Node node, std::map<std::string, int>& map){
     map["lowerHue"] = node["lowerHue"].as<int>(0);
     map["upperHue"] = node["upperHue"].as<int>(360);
     map["lowerSaturation"] = node["lowerSaturation"].as<int>(0);

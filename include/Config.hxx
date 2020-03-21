@@ -1,20 +1,42 @@
 #include<yaml-cpp/yaml.h>
 
-struct AppConfig {
-    AppConfig(const std::string configPath);
+enum AlgorithmType {
+    NearestNeighbour,
+    Bilinear,
+    Bicubic
+};
+
+struct PreprocessingConfig {
+  public:
+    AlgorithmType algorithm;
+    std::pair<int, int> size;
+    double bicubic;
+    bool equalizeHistogram;
+    bool reduceColors;
+    int colorReducerRatio;
+};
+
+struct SegmentationConfig {
+  public:
+    bool maskImage;
+    std::map<std::string, bool> colorMasks;
 
     std::map<std::string, int> redMask;
     std::map<std::string, int> blueMask;
     std::map<std::string, int> whiteMask;
     std::map<std::string, int> yellowMask;
-    std::map<std::string, bool> colorMasks;
-    int colorReducerRatio;
-    bool reduceColors;
-    bool equalizeHistogram;
-    bool maskImage;
-    std::pair<int, int> imageSize;
-    double bicubic;
+  private:
+    friend class AppConfig;
+    void extractParams(const YAML::Node node, std::map<std::string, int>& map);
+};
+
+struct AppConfig {
+    AppConfig(const std::string configPath);
+
+    PreprocessingConfig preprocessing;
+    SegmentationConfig segmentation;
 
   private:
-    void extractParams(const YAML::Node node, std::map<std::string, int>& map);
+    PreprocessingConfig extractPreprocessingParams(const YAML::Node node);
+    SegmentationConfig extractSegmentationParams(const YAML::Node node);
 };

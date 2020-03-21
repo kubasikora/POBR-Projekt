@@ -6,7 +6,7 @@
 
 namespace POBR {
 
-cv::Mat BilinearInterpolationResizer::resize(cv::Mat& image){
+cv::Mat& BilinearInterpolationResizer::resize(cv::Mat& image){
     const double xRatio = static_cast<double>(image.rows) / static_cast<double>(xSize_), yRatio = static_cast<double>(image.cols) / static_cast<double>(ySize_);
     cv::Mat resizedImage(xSize_, ySize_, image.type());
 
@@ -124,7 +124,7 @@ std::array<std::array<double, 3>, 4> BicubicInterpolationResizer::createIntermed
     return intermediaryResults;
 }
 
-cv::Mat BicubicInterpolationResizer::resize(cv::Mat& image){
+cv::Mat& BicubicInterpolationResizer::resize(cv::Mat& image){
     const double xRatio = static_cast<double>(image.rows) / static_cast<double>(xSize_), yRatio = static_cast<double>(image.cols) / static_cast<double>(ySize_);
     cv::Mat resizedImage(xSize_, ySize_, image.type());
 

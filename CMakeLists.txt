@@ -5,7 +5,6 @@ find_package(OpenCV REQUIRED)
 find_package(yaml-cpp REQUIRED) 
 set(PCL_BUILD_TYPE Release) 
 
-
 include_directories(${OpenCV_INCLUDE_DIRS} include/)
 aux_source_directory(src/ POBR_SRC_FILES) 
 

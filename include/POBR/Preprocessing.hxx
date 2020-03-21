@@ -58,13 +58,17 @@ class HistogramEqualizer {
     cv::Mat& applyLUT(cv::Mat& image, const std::array<int, 256> lut) const;
 };
 
-class NearestNeighbourInterpolationResizer {
+class ImageResizer {
+  virtual cv::Mat& resize(cv::Mat& image) = 0;
+};
+
+class NearestNeighbourInterpolationResizer : ImageResizer {
   public:
     NearestNeighbourInterpolationResizer(const int x, const int y) :
       xSize_(x), ySize_(y) {}
     NearestNeighbourInterpolationResizer(const std::pair<int, int> size) :
       xSize_(size.first), ySize_(size.second) {}
-    cv::Mat& resize(cv::Mat& image);
+    virtual cv::Mat& resize(cv::Mat& image);
 
   private:  
     const double findDistance(const double x, const double y, const int* position);
@@ -73,13 +77,13 @@ class NearestNeighbourInterpolationResizer {
     const int ySize_;
 };
 
-class BilinearInterpolationResizer {
+class BilinearInterpolationResizer : ImageResizer {
   public:
     BilinearInterpolationResizer(const int x, const int y) : 
       xSize_(x), ySize_(y) {}
     BilinearInterpolationResizer(const std::pair<int, int> size) :
       xSize_(size.first), ySize_(size.second) {}
-    cv::Mat resize(cv::Mat& image);
+    virtual cv::Mat& resize(cv::Mat& image);
 
   private:
     const double interpolate(const double p1, const double p2, const double d);
@@ -89,14 +93,14 @@ class BilinearInterpolationResizer {
     const int ySize_;
 };
 
-class BicubicInterpolationResizer {
+class BicubicInterpolationResizer : ImageResizer {
   public:
     BicubicInterpolationResizer(const int x, const int y, const double A) : 
       xSize_(x), ySize_(y), A_(A) {}
     BicubicInterpolationResizer(const std::pair<int, int> size, const double A) :
       xSize_(size.first), ySize_(size.second), A_(A) {}
 
-    cv::Mat resize(cv::Mat& image);
+    virtual cv::Mat& resize(cv::Mat& image);
 
   private:
     const std::array<double, 4> evaluateCoefficients(const double x);
