@@ -71,7 +71,7 @@ class NearestNeighbourInterpolationResizer : ImageResizer {
     virtual cv::Mat& resize(cv::Mat& image);
 
   private:  
-    const double findDistance(const double x, const double y, const int* position);
+    double findDistance(const double x, const double y, const int* position);
 
     const int xSize_;
     const int ySize_;
@@ -86,8 +86,8 @@ class BilinearInterpolationResizer : ImageResizer {
     virtual cv::Mat& resize(cv::Mat& image);
 
   private:
-    const double interpolate(const double p1, const double p2, const double d);
-    const uchar norm(const double n);
+    double interpolate(const double p1, const double p2, const double d);
+    uchar norm(const double n);
 
     const int xSize_;
     const int ySize_;
@@ -95,35 +95,22 @@ class BilinearInterpolationResizer : ImageResizer {
 
 class BicubicInterpolationResizer : ImageResizer {
   public:
-    BicubicInterpolationResizer(const int x, const int y, const double A) : 
-      xSize_(x), ySize_(y), A_(A) {}
-    BicubicInterpolationResizer(const std::pair<int, int> size, const double A) :
-      xSize_(size.first), ySize_(size.second), A_(A) {}
-
+    BicubicInterpolationResizer(const int x, const int y) : 
+      xSize_(x), ySize_(y) {}
+    BicubicInterpolationResizer(const std::pair<int, int> size) :
+      xSize_(size.first), ySize_(size.second) {}
     virtual cv::Mat& resize(cv::Mat& image);
 
   private:
     const std::array<double, 4> evaluateCoefficients(const double x);
     std::array<std::array<double, 3>, 4> createIntermediaryMatrix();
-    const uchar norm(const double n);
-    const int checkRowIfExist(const cv::Mat& image, const int x0, const int i);
-    const int checkColIfExist(const cv::Mat& image, const int yo, const int i);
-    
-  
-    const double A_;
-    const int xSize_;
-    const int ySize_;
-};
+    uchar norm(const double n);
+    int checkRowIfExist(const cv::Mat& image, const int x0, const int i);
+    int checkColIfExist(const cv::Mat& image, const int yo, const int i);
 
-class EdgeAdaptiveInterpolationResizer {
-  public:
-    EdgeAdaptiveInterpolationResizer(const int x, const int y) : 
-      xSize_(x), ySize_(y) {}
-    cv::Mat resize(cv::Mat& image);
-    ~EdgeAdaptiveInterpolationResizer() {};
-  private:
     const int xSize_;
     const int ySize_;
+    const double A_ = -0.75;
 };
 
 };

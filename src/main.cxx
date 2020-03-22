@@ -4,7 +4,7 @@
 #include"POBR/Preprocessing.hxx"
 #include"POBR/Masks.hxx"
 
-int main(int argc, char** argv){  
+int main(int argc, char** argv){ 
     if(argc < 2){
         std::cout << "Usage: MaskImage <imagePath>" << std::endl;
 	    return -1;
@@ -41,7 +41,7 @@ int main(int argc, char** argv){
         }
 
       case AlgorithmType::Bicubic: default: {
-          POBR::BicubicInterpolationResizer r3(config->preprocessing.size, config->preprocessing.bicubic);
+          POBR::BicubicInterpolationResizer r3(config->preprocessing.size);
           r3.resize(image);
           break;
         }

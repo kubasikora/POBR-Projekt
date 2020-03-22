@@ -5,9 +5,9 @@ namespace POBR {
 class ChannelInterval {
   public: 
     ChannelInterval(const int lower, const int upper);
-    const int getLowerBoundary() const;
-    const int getUpperBoundary() const;
-    virtual const bool isInRange(const uchar pixel) const;
+    int getLowerBoundary() const;
+    int getUpperBoundary() const;
+    virtual bool isInRange(const uchar pixel) const;
     virtual ~ChannelInterval() = 0;
 
   protected:
@@ -18,7 +18,7 @@ class ChannelInterval {
 class HueInterval : public ChannelInterval {
   public:
     HueInterval(const int lower, const int upper);
-    const bool isInRange(const uchar pixel) const override;
+    bool isInRange(const uchar pixel) const override;
     ~HueInterval();
 };
 

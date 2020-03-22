@@ -1,11 +1,29 @@
-Pierwszym krokiem algorytmu wykrywania logo \bk, jest przetwarzanie wstępne. Celem przetwarzania wstępnego jest zmniejszenie rzeczywistego rozmiaru, poprawa jakości obrazu oraz usunięcie zakłóceń.
+Pierwszym krokiem algorytmu wykrywania logo \bk, jest przetwarzanie wstępne. Celem przetwarzania wstępnego jest zmniejszenie rzeczywistego rozmiaru obrazu, względna poprawa jego jakości oraz usunięcie zakłóceń.
 
 \subsection{Skalowanie obrazu}
+\todo{Do obrazków: wstawić tylko wycinek znaku tak żeby pokazać rozpikselowanie.}
 Celem skalowania obrazu jest stworzenie nowego obrazu o~zmienionym rozmiarze, wykorzystując do tego obraz oryginalny. W~przypadku projektowanego systemu, obraz analizowany jest poddawany skalowaniu aby zmniejszyć jego rzeczywisty rozmiar, celem uproszczenia dalszych obliczeń.
 
-Do zmiany rozdzielczości obrazu cyfrowego zwykle wykorzystuje się metody interpolacji. Algorytmy tego typu można podzielić na algorytmy nieadaptacyjne oraz adaptacyjne. Pierwsza grupa dokonuje interpolacji w~ustalony z~góry sposób, niezależnie od zawartości przetwarzanego obrazu. Algorytmy adaptacyjne zmieniają sposób przetwarzania pikseli, biorąc pod uwagę cechy aktualnie przetwarzanego fragmentu. Adaptacja pozwala na zwiększenie jakości wizualnej, zwiększając przy tym koszt obliczeniowy~\cite{swierczynski2008podwyzszanie}.
+Do zmiany rozdzielczości obrazu cyfrowego zwykle wykorzystuje się metody interpolacji. Algorytmy tego typu można podzielić na algorytmy nieadaptacyjne oraz adaptacyjne. Pierwsza grupa dokonuje interpolacji w~ustalony z~góry sposób, niezależnie od zawartości przetwarzanego obrazu. Algorytmy adaptacyjne zmieniają sposób przetwarzania pikseli, biorąc pod uwagę cechy aktualnie przetwarzanego fragmentu. Adaptacja pozwala na zwiększenie jakości wizualnej, zwiększając przy tym koszt obliczeniowy~\cite{swierczynski2008podwyzszanie}. 
+
+W~ramach projektu przeanalizowałem działanie trzech algorytmów nieadaptacyjnych: 
+\begin{itemize}
+    \item interpolacja najbliższym sąsiadem,
+    \item interpolacja dwuliniowa,
+    \item interpolacja dwukubiczna.
+\end{itemize}
+
+\subsubsection{Interpolacja najbliższym sąsiadem}
+\todo{Opisać algorytm interpolacji najbliższym sąsiadem, wstawić wyniki interpolacji, opisać działanie.}
+
+\todo{zasada działania algorytmu}
+
+\todo{prezentacja działania algorytmu - opis, zdjecie, komentarz}
+
+\todo{wady i zalety algorytmu}
 
 \subsubsection{Interpolacja dwuliniowa}
+\todo{dopisac cos o wadach i zaletach}
 Algorytm interpolacji dwuliniowej jest algorytmem nieadaptacyjnym, nieco bardziej zaawansowanym niż pokrewny algorytm najbliższego sąsiada. Wartość każdego piksela obrazu wynikowego jest obliczana na podstawie czterech sąsiednich punktów obrazu wejściowego~\cite{algorytmy:bilinear}.
 
 W~pierwszym kroku algorytmu oblicza się w~którym miejscu w~obrazie wejściowym znajduje się rozpatrywany punkt obrazu wyjściowego. Dokonuje się tego poprzez obliczenie współczynników skalowania, zgodnie z~wzorami~\ref{eqn:wsp-skalowania-x}~i~\ref{eqn:wsp-skalowania-y}.
@@ -35,7 +53,7 @@ Na podstawie informacji o~docelowym punkcie, wybiera się cztery najbliższe pu
     \centering
     \includegraphics[width=0.6\columnwidth]{figures/bi2.png}
     \caption{Dobór sąsiednich punktów w~algorytmie interpolacji dwuliniowej~\cite{algorytmy:bilinear}}
-    \label{fig:bilinear-result}
+    \label{fig:bilinear-example}
 \end{figure}
 
 Następnie trzykrotnie przeprowadza się interpolację pomiędzy punktami, najpierw dwa razy w~kierunku poziomym pomiędzy $F_{0,0}$~i~$F_{1,0}$ oraz $F_{0,1}$~i~$F_{1,1}$ i~ostatni raz pomiędzy wynikami poprzednich interpolacji, zgodnie ze wzorem~\ref{eqn:interpolacja}.
@@ -50,19 +68,28 @@ Proces ten należy powtórzyć dla każdej składowej koloru z~osobna~\cite{algo
     \end{array} 
 \end{equation}
 
-W~stworzonym rozwiązaniu, algorytm interpolacji dwuliniowej jest implementowany przez  obiekty klasy \texttt{POBR::BilinearInterpolationResizer}. Wyniki działania tego algorytmu zostały przedstawione na rysunku~\ref{fig:bilinear-result}. 
-\begin{figure}%
+W~stworzonym rozwiązaniu, algorytm interpolacji dwuliniowej jest implementowany przez  obiekty klasy \texttt{POBR::BilinearInterpolationResizer}. Wyniki działania tego algorytmu zostały przedstawione na rysunku~\ref{fig:bilinear-result}. \todo{brakuje komentarza na temat wyniku testu.}
+
+\begin{figure}[h]
     \centering
     \subfloat[800x800px]{{\includegraphics[scale=0.16]{./figures/ikonka.jpg} }}%
     \qquad
     \qquad
     \subfloat[400x400px]{{\includegraphics[scale=0.16]{./figures/ikonka_rev.png} }}%
-    \caption{Efekt działania algorytmu interpolacji dwuliniowej na przykładzie zmniejszania logo \bk z~rozmiaru 800x800px do 400x400px}%
-    \label{fig:bilinear-result}%
+    \caption{Efekt działania algorytmu interpolacji dwuliniowej na przykładzie zmniejszania logo \bk z~rozmiaru 800x800px do 400x400px \todo{zmienić rysunek na taki w którym jest powiększenie pewnego fragmentu a nie cały obrazek}}
+    \label{fig:bilinear-result}
 \end{figure}
 
-\subsubsection{Interpolacja z uwzględnianiem krawędzi}
-\todo{Opisać adaptacyjny algorytm interpolacji z uwzględnieniem krawędzi.}
+\todo{w tym miejscu wady i zalety tego algorytmu}
+
+\subsubsection{Interpolacja dwukubiczna}
+\todo{Opisać algorytm interpolacji dwukubicznej, wstawić wyniki interpolacji, opisać działanie.}
+
+\todo{zasada działania algorytmu}
+
+\todo{prezentacja działania algorytmu - opis, zdjecie, komentarz}
+
+\todo{wady i zalety algorytmu}
 
 \subsection{Filtracja zakłóceń}
 \todo{Opisać algorytm filtracji zakłóceń - filtracja medianowa. Znaleźć źródła.}

@@ -19,7 +19,7 @@ const std::array<int, 256> HistogramEqualizer::createHistogram(cv::Mat& image) c
         value = 0;
     });
 
-    image.forEach<cv::Vec3b>([&histogram](cv::Vec3b& pixel, const int position[]){
+    image.forEach<cv::Vec3b>([&histogram](cv::Vec3b& pixel, const int[]){
         const uchar value = pixel[2];
         ++histogram[value];
     });
@@ -39,9 +39,10 @@ const std::array<int, 256> HistogramEqualizer::createLookuptable(const std::arra
 }
 
 cv::Mat& HistogramEqualizer::applyLUT(cv::Mat& image, const std::array<int, 256> lut) const {
-    image.forEach<cv::Vec3b>([&lut](cv::Vec3b& pixel, const int position[]){
+    image.forEach<cv::Vec3b>([&lut](cv::Vec3b& pixel, const int[]){
         pixel[2] = lut[pixel[2]];
     });
+    return image;
 }
 
 };

@@ -61,3 +61,5 @@ Ostatnim krokiem algorytmu jest obliczenie barwy $H$~zgodnie z~wzorem~\ref{eqn:h
 \smallskip
 
 Wartości zmiennych $V$~i~$S$ mieszczą się w~przedziale $[0; 255]$ natomiast wartości zmiennej $H$ są ograniczone przez przedział $[0; 360]$. Obrazy przechowywane są tablicy o~ośmiobitowym rozmiarze podstawowym \texttt{uchar}. Zmienna $H$ nie mieści się w~komórce o~tym rozmiarze, dlatego też zdecydowałem się na przechowywanie w~tablicy wartości $\frac{H}{2}$. Podział ten jest solidnym kompromisem pomiędzy dokładnością reprezentacji a~rozmiarem obrazu w~pamięci komputera. Jest on również domyślnie wykorzystywany w~reprezentacji obrazów w~modelu~HSV w~bibliotece OpenCV~\cite{opencv}.
+
+\todo{Napisać jakie są inne możliwości typu danych i dlaczego uchar jest najlepsza}

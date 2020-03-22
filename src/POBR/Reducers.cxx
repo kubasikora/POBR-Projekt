@@ -27,14 +27,14 @@ const std::array<uchar, 256> ColorReducer::createLookupTable(const int divider){
 }
 
 cv::Mat& ColorReducer::reduceSingleChannel(cv::Mat& image, const std::array<uchar, 256> lookupTable){
-    image.forEach<uchar>([&lookupTable](uchar pixel, const int position[]){
+    image.forEach<uchar>([&lookupTable](uchar pixel, const int[]){
         pixel = lookupTable[pixel];
     });
     return image;
 }
 
 cv::Mat& ColorReducer::reduceTripleChannel(cv::Mat& image, const std::array<uchar, 256> lookupTable){
-    image.forEach<cv::Vec3b>([&lookupTable](cv::Vec3b& pixel, const int position[]){
+    image.forEach<cv::Vec3b>([&lookupTable](cv::Vec3b& pixel, const int[]){
         pixel[0] = lookupTable[pixel[0]];
         pixel[1] = lookupTable[pixel[1]];
         pixel[2] = lookupTable[pixel[2]];

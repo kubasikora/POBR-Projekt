@@ -17,12 +17,12 @@ cv::Mat& BilinearInterpolationResizer::resize(cv::Mat& image){
         const double dx = x - x0, dy = y - y0; // frac
         
         int x1, y1;
-        if (x0 + 1 > image.rows)
+        if (x0 + 1 >= image.rows)
             x1 = x0;
         else
             x1 = x0 + 1;
         
-        if (y0 + 1 > image.cols)
+        if (y0 + 1 >= image.cols)
             y1 = y0;
         else
             y1 = y0 + 1;
@@ -40,11 +40,11 @@ cv::Mat& BilinearInterpolationResizer::resize(cv::Mat& image){
     return image;
 }
 
-const double BilinearInterpolationResizer::interpolate(const double p1, const double p2, const double d){
+double BilinearInterpolationResizer::interpolate(const double p1, const double p2, const double d){
     return p1*(1-d) + p2*d;
 }
 
-const uchar BilinearInterpolationResizer::norm(const double n){
+uchar BilinearInterpolationResizer::norm(const double n){
     if(n > 255) return 255;
     if(n < 0) return 0;
     return n;
@@ -53,8 +53,7 @@ const uchar BilinearInterpolationResizer::norm(const double n){
 cv::Mat& NearestNeighbourInterpolationResizer::resize(cv::Mat& image){
     const double xRatio = static_cast<double>(image.rows) / static_cast<double>(xSize_), yRatio = static_cast<double>(image.cols) / static_cast<double>(ySize_);
     cv::Mat resizedImage(xSize_, ySize_, image.type());
-
-        resizedImage.forEach<cv::Vec3b>([&](cv::Vec3b& pixel, const int position[]){
+    resizedImage.forEach<cv::Vec3b>([&](cv::Vec3b& pixel, const int position[]){
         const int i = position[0], j = position[1];
         const double x = i*xRatio;
         const double y = j*yRatio;
@@ -62,20 +61,20 @@ cv::Mat& NearestNeighbourInterpolationResizer::resize(cv::Mat& image){
 
         std::vector<std::pair<double, cv::Vec3b>> points;
         int x1, y1;
-        if (x0 + 1 > image.rows)
+        if (x0 + 1 >= image.rows)
             x1 = x0;
         else
             x1 = x0 + 1;
         
-        if (y0 + 1 > image.cols)
+        if (y0 + 1 >= image.cols)
             y1 = y0;
         else
             y1 = y0 + 1;
 
         points.push_back(std::make_pair(findDistance(x0, y0, position), image.at<cv::Vec3b>(x0, y0)));
-        points.push_back(std::make_pair(findDistance(x0, y0, position), image.at<cv::Vec3b>(x0, y0)));
-        points.push_back(std::make_pair(findDistance(x0, y0, position), image.at<cv::Vec3b>(x0, y0)));
-        points.push_back(std::make_pair(findDistance(x0, y0, position), image.at<cv::Vec3b>(x0, y0)));
+        points.push_back(std::make_pair(findDistance(x1, y0, position), image.at<cv::Vec3b>(x1, y0)));
+        points.push_back(std::make_pair(findDistance(x0, y1, position), image.at<cv::Vec3b>(x0, y1)));
+        points.push_back(std::make_pair(findDistance(x1, y1, position), image.at<cv::Vec3b>(x1, y1)));
 
         std::sort(points.begin(), points.end(), [](const auto& x1, const auto& x2){
             return x1.first < x2.first;
@@ -87,7 +86,7 @@ cv::Mat& NearestNeighbourInterpolationResizer::resize(cv::Mat& image){
    return image; 
 }
 
-const double NearestNeighbourInterpolationResizer::findDistance(const double x, const double y, const int position[]){
+double NearestNeighbourInterpolationResizer::findDistance(const double x, const double y, const int position[]){
     return std::sqrt(std::pow(position[0] - x, 2) + std::pow(position[1] - y, 2));
 }
 
@@ -101,14 +100,14 @@ const std::array<double, 4> BicubicInterpolationResizer::evaluateCoefficients(co
     return coeffs;
 }
 
-const int BicubicInterpolationResizer::checkRowIfExist(const cv::Mat& image, const int x0, const int i){
+int BicubicInterpolationResizer::checkRowIfExist(const cv::Mat& image, const int x0, const int i){
     if(x0 + i > image.rows && x0 + i < 0)
         return x0;
     else 
         return x0 + i;
 }
 
-const int BicubicInterpolationResizer::checkColIfExist(const cv::Mat& image, const int y0, const int i){
+int BicubicInterpolationResizer::checkColIfExist(const cv::Mat& image, const int y0, const int i){
     if(y0 + i > image.cols && y0 + i < 0)
         return y0;
     else 
@@ -163,14 +162,10 @@ cv::Mat& BicubicInterpolationResizer::resize(cv::Mat& image){
     return image;
 }
 
-const uchar BicubicInterpolationResizer::norm(const double n){
+uchar BicubicInterpolationResizer::norm(const double n){
     if(n > 255) return 255;
     if(n < 0) return 0;
     return n;
-}
-
-cv::Mat EdgeAdaptiveInterpolationResizer::resize(cv::Mat& image){
-    return image;
 }
 
 };      

@@ -3,7 +3,6 @@ preprocessing:
     algorithm: Bilinear
     imageHeight: 1000
     imageWidth: 1000
-    bicubicRatio: -0.75
   
   operations:
     equalizeHistogram: true

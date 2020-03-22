@@ -7,9 +7,10 @@ namespace POBR {
 
 cv::Mat& BGR2HSVConverter::convert(cv::Mat& image){
     image.forEach<cv::Vec3b>(BGR2HSVPixelConverter());
+    return image;
 }
 
-void BGR2HSVConverter::BGR2HSVPixelConverter::operator()(cv::Vec3b& pixel, const int position[]) const {
+void BGR2HSVConverter::BGR2HSVPixelConverter::operator()(cv::Vec3b& pixel, const int[]) const {
     const uchar red = pixel[2], green = pixel[1], blue = pixel[0];
     const uchar value = evalValue(red, green, blue);
     const uchar saturation = evalSaturation(red, green, blue, value);
@@ -53,9 +54,10 @@ uchar BGR2HSVConverter::BGR2HSVPixelConverter::evalHue(const uchar red, const uc
 
 cv::Mat& HSV2BGRConverter::convert(cv::Mat& image){
     image.forEach<cv::Vec3b>(HSV2BGRPixelConverter());
+    return image;
 }
 
-void HSV2BGRConverter::HSV2BGRPixelConverter::operator()(cv::Vec3b& pixel, const int position[]) const {  
+void HSV2BGRConverter::HSV2BGRPixelConverter::operator()(cv::Vec3b& pixel, const int[]) const {  
     const uchar hue = pixel[0], saturation = pixel[1], value = pixel[2];
     const float h = hue * 2.0f;
     const float s = saturation / 255.0f;

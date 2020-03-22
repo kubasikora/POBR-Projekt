@@ -15,15 +15,15 @@ ChannelInterval::ChannelInterval(const int lower, const int upper) :
 
 ChannelInterval::~ChannelInterval() {}
 
-const int ChannelInterval::getLowerBoundary() const {
+int ChannelInterval::getLowerBoundary() const {
     return lower_;
 }
 
-const int ChannelInterval::getUpperBoundary() const {
+int ChannelInterval::getUpperBoundary() const {
     return upper_;
 }
 
-const bool ChannelInterval::isInRange(const uchar pixel) const {
+bool ChannelInterval::isInRange(const uchar pixel) const {
     return pixel >= this->getLowerBoundary() && pixel <= this->getUpperBoundary();
 }
 
@@ -32,7 +32,7 @@ HueInterval::HueInterval(const int lower, const int upper) :
 
 HueInterval::~HueInterval(){}
 
-const bool HueInterval::isInRange(const uchar pixel) const {
+bool HueInterval::isInRange(const uchar pixel) const {
     const int normalizedPixel = static_cast<int>(pixel) * 2;
     const int angles = 360;
     if(lower_ >= 0 && upper_ >= 0){
@@ -72,7 +72,7 @@ HSVMask::HSVMask(const HueInterval hue, const SaturationInterval saturation, con
                     hueInterval_(hue), saturationInterval_(saturation), valueInterval_(value) {}
 
 cv::Mat& HSVMask::apply(cv::Mat& image){
-    image.forEach<cv::Vec3b>([this](cv::Vec3b& pixel, const int position[]){
+    image.forEach<cv::Vec3b>([this](cv::Vec3b& pixel, const int[]){
         pixel = this->maskPixel(pixel, 0, this->hueInterval_);
         pixel = this->maskPixel(pixel, 1, this->saturationInterval_);
         pixel = this->maskPixel(pixel, 2, this->valueInterval_);
