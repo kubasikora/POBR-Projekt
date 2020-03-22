@@ -101,14 +101,14 @@ const std::array<double, 4> BicubicInterpolationResizer::evaluateCoefficients(co
 }
 
 int BicubicInterpolationResizer::checkRowIfExist(const cv::Mat& image, const int x0, const int i){
-    if(x0 + i > image.rows && x0 + i < 0)
+    if(x0 + i > image.cols-1 || x0 + i < 0)
         return x0;
     else 
         return x0 + i;
 }
 
 int BicubicInterpolationResizer::checkColIfExist(const cv::Mat& image, const int y0, const int i){
-    if(y0 + i > image.cols && y0 + i < 0)
+    if(y0 + i > image.rows-1 || y0 + i < 0)
         return y0;
     else 
         return y0 + i;
@@ -140,7 +140,7 @@ cv::Mat& BicubicInterpolationResizer::resize(cv::Mat& image){
         std::array<std::array<double, 3>, 4> intermediaryResults = createIntermediaryMatrix();
         for(auto i = 0; i < 4; ++i){
             for(auto j = 0; j < 4; ++j){
-                const cv::Vec3b p = image.at<cv::Vec3b>(checkColIfExist(image, x0, j-1), checkRowIfExist(image, y0, i-1));
+                const cv::Vec3b p = image.at<cv::Vec3b>(checkRowIfExist(image, x0, j-1), checkColIfExist(image, y0, i-1));
                 for(auto k = 0; k < 3; ++k)
                     intermediaryResults[i][k] += p[k] * xCoeffs[j]; 
             }

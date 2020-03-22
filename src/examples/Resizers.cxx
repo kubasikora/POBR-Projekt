@@ -14,7 +14,7 @@ int main(int argc, char** argv){
 	    return -1;
     }
 
-    const int width = 1000, height = 1000;
+    const int width = 100, height = 100;
     cv::Mat nn = image.clone(), bil = image.clone(), bic = image.clone();
     POBR::NearestNeighbourInterpolationResizer nnr(height, width);
     POBR::BilinearInterpolationResizer blr(height, width);
@@ -34,6 +34,10 @@ int main(int argc, char** argv){
     cv::imshow("bicubic", bic);
 
     cv::waitKey(0);
+
+    cv::imwrite("nn.png", nn);
+    cv::imwrite("bl.png", bil);
+    cv::imwrite("bc.png", bic);
     return 0;
 
 }
