@@ -1,7 +1,6 @@
 Pierwszym krokiem algorytmu wykrywania logo \bk, jest przetwarzanie wstępne. Celem przetwarzania wstępnego jest zmniejszenie rzeczywistego rozmiaru obrazu, względna poprawa jego jakości oraz usunięcie zakłóceń.
 
 \subsection{Skalowanie obrazu}
-\todo{pozmieniać te obrazki bo dalej nic z nich nie wynika}
 Celem skalowania obrazu jest stworzenie nowego obrazu o~zmienionym rozmiarze, wykorzystując do tego obraz oryginalny. W~przypadku projektowanego systemu, obraz analizowany jest poddawany skalowaniu aby zmniejszyć jego rzeczywisty rozmiar, celem uproszczenia dalszych obliczeń.
 
 Do zmiany rozdzielczości obrazu cyfrowego zwykle wykorzystuje się metody interpolacji. Algorytmy tego typu można podzielić na algorytmy nieadaptacyjne oraz adaptacyjne. Pierwsza grupa dokonuje interpolacji w~ustalony z~góry sposób, niezależnie od zawartości przetwarzanego obrazu. Algorytmy adaptacyjne zmieniają sposób przetwarzania pikseli, biorąc pod uwagę cechy aktualnie przetwarzanego fragmentu. Adaptacja pozwala na zwiększenie jakości wizualnej, zwiększając przy tym koszt obliczeniowy~\cite{swierczynski2008podwyzszanie}.
@@ -37,20 +36,25 @@ Na podstawie współczynników $r_{x}, r_{y}$ dla piksela $(i, j)$ obrazu wyjśc
 \subsubsection{Interpolacja najbliższym sąsiadem}
 Interpolacja metodą najbliższego sąsiada jest najprostszą metodą zmiany rozmiaru obrazu cyfrowego. Jest to metoda wymagająca najmniejszej mocy obliczeniowej i~jest jedyną metodą nie powodującą rozmycia obrazu wynikowego. W~przetwarzaniu obrazów jest najczęściej wykorzystywana do zmiany rozmiaru zdjęć zawierających kody kreskowe lub zrzutów ekranu aplikacji okienkowych.
 
-Algorytm interpolacji najbliższym sąsiadem działa w~następujący sposób. Dla każdej obliczonej pary $(x,y)$ odpowiadającej pikselowi $(i, j)$ w~obrazie wyjściowym, wybierany jest rzeczywisty piksel $(\hat{x}, \hat{y})$ obrazu wejściowego, którego odległość punktu docelowego jest najmniejsza (czyli jest najbliższym sąsiadem obliczonego piksela).
+Algorytm interpolacji najbliższym sąsiadem działa w~sposób przedstawiony na rysunku~\ref{fig:nn-example}. Dla każdej obliczonej pary $(x,y)$ odpowiadającej pikselowi $(i, j)$ w~obrazie wyjściowym, wybierany jest rzeczywisty piksel $(\hat{x}, \hat{y})$ obrazu wejściowego, którego odległość punktu docelowego jest najmniejsza (czyli jest najbliższym sąsiadem obliczonego piksela).
 
-\todo{wstawić jakiś obrazek na temat tego algorytmu}
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=0.6\columnwidth]{figures/nearestneighbour.png}
+    \caption{Wybór najbliższego sąsiada w~algorytmie interpolacji~\cite{WikipediaEN:bicubicimg}}
+    \label{fig:nn-example}
+\end{figure}
 
 W~stworzonym rozwiązaniu, algorytm interpolacji dwuliniowej jest implementowany przez  obiekty klasy \texttt{POBR::NearestNeighbourInterpolationResizer}. Wyniki działania tego algorytmu zostały przedstawione na rysunku~\ref{fig:nearestneighbour-result}. 
 
 \begin{figure}[h]
     \centering
-    \subfloat[100x100px]{{\includegraphics[scale=1.65]{figures/100x100/nn.pdf}}}
+    \subfloat[25x25px]{{\includegraphics[scale=2.6]{figures/25x25/nn.png}}}
     \qquad
-    \subfloat[200x200px]{{\includegraphics[scale=0.32]{./figures/200x200.jpg} }}%
+    \subfloat[50x50px]{{\includegraphics[scale=1.3]{./figures/50x50.jpg} }}%
     \qquad
-    \subfloat[400x400px]{{\includegraphics[scale=0.405]{./figures/400x400/nn.pdf} }}%
-    \caption{Efekt działania algorytmu interpolacji najbliższym sąsiadem na przykładzie zmniejszania logo \bk z~rozmiaru 200x200px do 100x100px oraz zwiększania do rozmiaru 400x400px}
+    \subfloat[100x100px]{{\includegraphics[scale=0.65]{./figures/100x100/nn.png} }}
+    \caption{Efekt działania algorytmu interpolacji najbliższym sąsiadem na przykładzie zmniejszania logo \bk z~rozmiaru 50x50px do 25x25px oraz zwiększania do rozmiaru 100x100px}
     \label{fig:nearestneighbour-result}
 \end{figure}
 
@@ -83,35 +87,105 @@ W~stworzonym rozwiązaniu, algorytm interpolacji dwuliniowej jest implementowany
 
 \begin{figure}[h]
     \centering
-    \subfloat[100x100px]{{\includegraphics[scale=1.61]{figures/100x100/bl.pdf}}}
+    \subfloat[25x25px]{{\includegraphics[scale=2.6]{figures/25x25/bl.png}}}
     \qquad
-    \subfloat[200x200px]{{\includegraphics[scale=0.32]{./figures/200x200.jpg} }}%
+    \subfloat[50x50px]{{\includegraphics[scale=1.3]{./figures/50x50.jpg} }}
     \qquad
-    \subfloat[400x400px]{{\includegraphics[scale=0.405]{./figures/400x400/bl.pdf} }}%
-    \caption{Efekt działania algorytmu interpolacji dwuliniowej na przykładzie zmniejszania logo \bk z~rozmiaru 200x200px do 100x100px oraz zwiększania do rozmiaru 400x400px}
+    \subfloat[100x100px]{{\includegraphics[scale=0.65]{./figures/100x100/bl.png} }}
+    \caption{Efekt działania algorytmu interpolacji dwuliniowej na przykładzie zmniejszania logo \bk z~rozmiaru 50x50px do 25x25px oraz zwiększania do rozmiaru 100x100px}
     \label{fig:bilinear-result}
 \end{figure}
 
 Algorytm interpolacji dwuliniowej jest zdecydowanie bardziej skomplikowanym algorytmem przetwarzania. W~wyniku jego działania, obraz wyjściowy jest rozmyty, co jednak pozwala na zachowanie naturalnego wyglądu obrazu. Mimo brania pod uwagę czterech pikseli, metoda ta niewiele mocniej obciąża procesor. 
 
 \subsubsection{Interpolacja dwukubiczna}
-\todo{Opisać algorytm interpolacji dwukubicznej, wstawić wyniki interpolacji, opisać działanie.}
+Interpolacja dwukubiczna jest najczęściej wykorzystywanym algorytmem zmiany rozmiaru obrazu, szczególnie w~system gdzie prędkość przetwarzania nie jest najważniejszym kryterium. Zamiast czterech najbliższych punktów, algorytm bierze pod uwagę szesnaście najbliższych punktowi docelowemu pikseli. Obrazy przetworzone przez algorytm dwukubiczny mają znacznie gładsze krawędzie oraz pozbawione są widocznych artefaktów.
 
-\todo{zasada działania algorytmu}
-
-\todo{prezentacja działania algorytmu - opis, zdjecie, komentarz}
-
-\todo{wady i zalety algorytmu}
 \begin{figure}[h]
     \centering
-    \subfloat[100x100px]{{\includegraphics[scale=1.61]{figures/100x100/bc.pdf}}}
+    \includegraphics[width=\columnwidth]{figures/bicubic.png}
+    \caption{Zasada działania algorytmu interpolacji dwukubicznej~\cite{WikipediaEN:bicubicimg}}
+    \label{fig:bicubic-example}
+\end{figure}
+
+Poglądowo, zasada działania algorytmu została przedstawiona na rysunku~\ref{fig:bicubic-example}. Do wyznaczenia wartości jasności danego piksela, algorytm bierze pod uwagę szesnaście pikseli w~bezpośrednim otoczeniu wyznaczonej pozycji $(x,y)$ piksela. Podobnie jak w~alogrytmie dwuliniowym, w~pierwszej kolejności dokonywana jest interpolacja w~osi poziomej, tym razem jednak czterokrotnie, dla czterech rzędzów pikseli. Funkcje jasności są lokalnie interpolowane wielomianem trzeciego stopnia. Następnym krokiem algorytmu jest ponowna interpolacja, tym razem w~osi pionowej. Operację należy powtórzyć dla każdej zmiennej składowej obrazu.
+
+Przygotowany system udostępnia klasę realizującą algorytm interpolacji dwukubicznej o~nazwie \texttt{POBR::BicubicInterpolationResizer}. Na rysunku~\ref{fig:bicubic-result} zostały przedstawione wyniki działania algorytmu w~zadaniu zmniejszania oraz zwiększania oryginalnego obrazka.
+
+\begin{figure}[h]
+    \centering
+    \subfloat[25x25px]{{\includegraphics[scale=2.6]{figures/25x25/bc.png}}}
     \qquad
-    \subfloat[200x200px]{{\includegraphics[scale=0.32]{./figures/200x200.jpg} }}%
+    \subfloat[50x50px]{{\includegraphics[scale=1.3]{./figures/50x50.jpg} }}%
     \qquad
-    \subfloat[400x400px]{{\includegraphics[scale=0.405]{./figures/400x400/bc.pdf} }}%
-    \caption{Efekt działania algorytmu interpolacji dwukubicznej na przykładzie zmniejszania logo \bk z~rozmiaru 200x200px do 100x100px oraz zwiększania do rozmiaru 400x400px}
+    \subfloat[100x100px]{{\includegraphics[scale=0.65]{./figures/100x100/bc.png} }}%
+    \caption{Efekt działania algorytmu interpolacji dwukubicznej na przykładzie zmniejszania logo \bk z~rozmiaru 50x50px do 25x25px oraz zwiększania do rozmiaru 100x100px}
     \label{fig:bicubic-result}
 \end{figure}
+
+Obrazki otrzymane w~wyniku działania algortymu są najprzyjmeniejsze dla oka. Krawędzie są naturalnie rozmyte. Jedyną wadą tego algorytmu skalowania jest czas jego trwania. Algorytm ten zdecydowanie nie nadaje się do przetwarzania obrazów w~czasie rzeczywistym.
+
+W~celu wyboru algorytmu zmiany rozmiaru obrazka do projektowanego systemu wykrywania, przeprowadziłem eksperyment porównawczy. Pojedynczy obrazek o~wielkości 200x200px został powiększony przez każdy z~trzech algorytmów do wielu różnych rozmiarów. Następnie porównano wyniki oraz czasy przetwarzania. 
+
+\begin{figure}[h]
+    \centering
+    \begin{tikzpicture}
+        \pgfplotsset{%
+            x tick label style={/pgf/number format/1000 sep=\,},
+            log base 10 number format code/.code={%
+                $\pgfmathparse{10^(#1)}\pgfmathprintnumber{\pgfmathresult}$%
+            }%
+        }  
+        \begin{axis}[
+            grid=minor,
+            xmode=log,
+            ymode=log,
+            xlabel={rozmiar [px]},
+            ylabel={czas przetwarzania [t]},
+            % xtick={50, 100, 200, 400, 800, 1600, 3200, 6400},
+            log ticks with fixed point
+        ]
+            \addplot[mark=*, red, semithick] table {
+                50 0.000305484
+                100 0.00173367
+                200 0.00479529
+                400 0.0186251
+                800 0.102972
+                1600 0.348162
+                3200 1.26685
+                6400 4.18572
+            };
+            \addplot[mark=*, blue, semithick] table {
+                50 0.00056756
+                100 0.00179102
+                200 0.00344637
+                400 0.0138544
+                800 0.0935612
+                1600 0.345652
+                3200 1.55231
+                6400 4.94573
+            };
+            \addplot[mark=*, green, semithick] table {
+                50 0.0104428 
+                100 0.0473796 
+                200 0.0828924 
+                400 0.245594 
+                800 0.750946 
+                1600 2.64254 
+                3200 11.2324 
+                6400 50.3934 
+            };
+        \end{axis}
+    \end{tikzpicture}
+    \caption{Porównanie czasu zmiany obrazka 200x200px do docelowego rozmiaru}
+    \label{fig:resizing-time}
+\end{figure}
+
+Zgodnie z~oczekiwaniami, najlepsze rezultaty zostały osiągnięte przez algorytm interpolacji dwukubicznej. Nawet przy dziesięciokrotnym powiększeniu, obrazek nadal wyglądał naturalnie i~zdecydowanie lepiej od pozostałych.  
+
+Na wykresie~\ref{fig:resizing-time} przedstawiono zależność czasu przetwarzania od rozmiaru obrazka. Algorytmy najbliższego sąsiada oraz interpolacji dwuliniowej działają w~porównywalnym czasie, natomiast algorytm dwukubiczny znacznie odstaje od pozostałych dwóch, działając średnio o~rząd wielkości dłużej.
+
+Na podstawie wykonanego eksperymentu, zdecydowałem się na wybór algorytmu interpolacji dwukubicznej. Krótki czas przetwarzania nie jest szczególnie oczekiwaną cechą od projektowanego systemu oraz algorytm będzie stosowany do zmniejszania obrazków a~nie do ich znacznego powiększania, dlatego też z~wszystkich trzech przedstawionych rozwiązań, algorytm dwukubiczny jest najlepszy.
 
 \subsection{Filtracja zakłóceń}
 \todo{Opisać algorytm filtracji zakłóceń - filtracja medianowa. Znaleźć źródła.}

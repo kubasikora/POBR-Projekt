@@ -1,7 +1,7 @@
 Po przetwarzaniu wstępnym obrazu, kolejnym krokiem algorytmu wykrywania logo \bk była konwersja przestrzeni barw z~RGB do przestrzeni~HSV.
 
 \subsection{Przestrzeń RGB}
-Najbardziej znanym modelem przestrzeni barw jest model opisywany współrzędnymi RGB. Nazwa współrzędnych pochodzi od pierwszych liter nazw barw podstawowych: \textbf{R} - czerwona, \textbf{G} - zielona oraz \textbf{B} - niebieska. Model ten bazuje na właściwościach ludzkiego oka. Wrażenie widzenia dowolnej barwy można uzyskać poprzez zmieszanie trzech wiązek światła \cite{jankowski1990elementy}.
+Najbardziej znanym modelem przestrzeni barw jest model opisywany współrzędnymi RGB. Nazwa współrzędnych pochodzi od pierwszych liter nazw barw podstawowych: (\textbf{R})~czerwonej, (\textbf{G})~zielonej oraz (\textbf{B})~niebieskiej. Model ten bazuje na właściwościach ludzkiego oka. Wrażenie widzenia dowolnej barwy można uzyskać poprzez zmieszanie trzech wiązek światła \cite{jankowski1990elementy}.
 
 Model RGB jest domyślnie wykorzystywany w~informatyce do przechowywania plików graficznych. Wykorzystywana w~rozwiązaniu biblioteka OpenCV, również bazuje na tym modelu, odwracając kolejność kolorów. Zamiast jako pierwszą przechowywać informację o kolorze czerwonym, pierwsza przechowywana informacja mówi o~kolorze niebieskim, tak jak zostało to przedstawione na rysunku~\ref{fig:bgr}. Tak odwróconą przestrzeń nazywa się przestrzenią BGR~\cite{opencv}.
 

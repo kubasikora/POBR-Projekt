@@ -59,7 +59,7 @@ cv::Mat& NearestNeighbourInterpolationResizer::resize(cv::Mat& image){
         const double y = j*yRatio;
         const int x0 = x, y0 = y; // floor 
 
-        std::vector<std::pair<double, cv::Vec3b>> points;
+        
         int x1, y1;
         if (x0 + 1 >= image.rows)
             x1 = x0;
@@ -71,15 +71,22 @@ cv::Mat& NearestNeighbourInterpolationResizer::resize(cv::Mat& image){
         else
             y1 = y0 + 1;
 
-        points.push_back(std::make_pair(findDistance(x0, y0, position), image.at<cv::Vec3b>(x0, y0)));
-        points.push_back(std::make_pair(findDistance(x1, y0, position), image.at<cv::Vec3b>(x1, y0)));
-        points.push_back(std::make_pair(findDistance(x0, y1, position), image.at<cv::Vec3b>(x0, y1)));
-        points.push_back(std::make_pair(findDistance(x1, y1, position), image.at<cv::Vec3b>(x1, y1)));
+        
+        const auto p00 = findDistance(x0, y0, position);
+        const auto p10 = findDistance(x1, y0, position);
+        const auto p01 = findDistance(x0, y1, position);
+        const auto p11 = findDistance(x1, y1, position);
 
-        std::sort(points.begin(), points.end(), [](const auto& x1, const auto& x2){
-            return x1.first < x2.first;
-        });
-        pixel = points.front().second;
+        const auto minim = std::min(std::min(p00, p10), std::min(p01, p11));
+
+        if(p00 == minim)
+            pixel = image.at<cv::Vec3b>(x0, y0);
+        if(p10 == minim)
+            pixel = image.at<cv::Vec3b>(x1, y0);
+        if(p01 == minim)
+            pixel = image.at<cv::Vec3b>(x0, y1);
+        if(p11 == minim)
+            pixel = image.at<cv::Vec3b>(x1, y1);
     });
     image = resizedImage;
 
