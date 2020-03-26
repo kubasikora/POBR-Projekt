@@ -41,4 +41,42 @@ uchar ConvolutionalFilter::normPixel(double i){
     return i;
 }
 
+MedianFilter::MedianFilter(const int windowSize) : 
+    windowSize_(windowSize % 2 == 1 ? windowSize_ : throw InvalidWindowSizeException()),
+    offset_(windowSize / 2) {}
+
+cv::Mat MedianFilter::filter(cv::Mat& image){
+    const int imageHeight = image.rows, imageWidth = image.cols;
+    cv::Mat filteredImage(cv::Size(imageWidth, imageHeight), image.type()); // size(width, height)
+
+    filteredImage.forEach<cv::Vec3b>([&](cv::Vec3b& pixel, const int position[]){
+        const int y = position[0], x = position[1];
+        if(x < offset_ || y < offset_ || x >= imageWidth - offset_ || y >= imageHeight - offset_){
+            pixel = image.at<cv::Vec3b>(y, x);
+            return;
+        }
+
+        std::array<std::vector<uchar>,3> pixels;
+        std::for_each(pixels.begin(), pixels.end(), [&](auto& channel){
+            channel.reserve(windowSize_^2);
+        });
+       
+        for(auto i = -offset_; i <= offset_; ++i)
+            for(auto j = -offset_; j <= offset_; ++j){
+                for(auto k = 0; k < 3; ++k){
+                    pixels[k].push_back(image.at<cv::Vec3b>(y-j, x-i)[k]);
+                }
+        }
+        
+        int counter = 0;
+        std::for_each(pixels.begin(), pixels.end(), [&](auto& channel){
+            std::sort(channel.begin(), channel.end());
+            pixel[counter] = channel[windowSize_^2 / 2];
+            ++counter;
+        });
+    });
+    
+    return filteredImage;
+}
+
 }

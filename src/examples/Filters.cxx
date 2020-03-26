@@ -14,6 +14,13 @@ int main(int argc, char** argv){
 	    return -1;
     }
 
+    POBR::MedianFilter mf(5);
+    cv::Mat filtered = mf.filter(image);
+    
+    cv::imshow("original", image);
+    cv::imshow("filtered", filtered);
+    cv::waitKey(-1);
+
     cv::Mat lowPassKernel = (cv::Mat_<double>(5,5) << 0, 0, 0, 0, 0, 
                                                       0, 0.1, 0.1, 0.1, 0,
                                                       0, 0.1, 0.2, 0.1, 0,

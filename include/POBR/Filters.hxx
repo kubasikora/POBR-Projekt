@@ -1,6 +1,7 @@
 #include<opencv2/opencv.hpp>
 #include<algorithm>
 #include<array>
+#include<exception>
 
 namespace POBR {
 
@@ -20,5 +21,18 @@ class ConvolutionalFilter : public Filter {
     const int filterOffsetX_;
     const int filterOffsetY_;
 };
+
+class MedianFilter : public Filter {
+  public:
+    MedianFilter(const int windowSize);
+    virtual cv::Mat filter(cv::Mat& image) override;
+  
+  private:
+
+    const int windowSize_;
+    const int offset_;
+};
+
+class InvalidWindowSizeException : public std::exception {};
 
 }
