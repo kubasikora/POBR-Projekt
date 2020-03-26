@@ -108,14 +108,14 @@ const std::array<double, 4> BicubicInterpolationResizer::evaluateCoefficients(co
 }
 
 int BicubicInterpolationResizer::checkRowIfExist(const cv::Mat& image, const int x0, const int i){
-    if(x0 + i > image.cols-1 || x0 + i < 0)
+    if(x0 + i > image.rows - 1 || x0 + i < 0)
         return x0;
     else 
         return x0 + i;
 }
 
 int BicubicInterpolationResizer::checkColIfExist(const cv::Mat& image, const int y0, const int i){
-    if(y0 + i > image.rows-1 || y0 + i < 0)
+    if(y0 + i > image.cols - 1 || y0 + i < 0)
         return y0;
     else 
         return y0 + i;
@@ -131,11 +131,11 @@ std::array<std::array<double, 3>, 4> BicubicInterpolationResizer::createIntermed
 }
 
 cv::Mat& BicubicInterpolationResizer::resize(cv::Mat& image){
-    const double xRatio = static_cast<double>(image.rows) / static_cast<double>(xSize_), yRatio = static_cast<double>(image.cols) / static_cast<double>(ySize_);
-    cv::Mat resizedImage(xSize_, ySize_, image.type());
+    const double xRatio = static_cast<double>(image.cols) / static_cast<double>(xSize_), yRatio = static_cast<double>(image.rows) / static_cast<double>(ySize_);
+    cv::Mat resizedImage(ySize_, xSize_, image.type());
 
     resizedImage.forEach<cv::Vec3b>([&](cv::Vec3b& pixel, const int position[]){
-        const int i = position[0], j = position[1];
+        const int i = position[1], j = position[0];
         const double x = i*xRatio, y = j*yRatio;
         const int x0 = x, y0 = y; // floor 
         const double dx = x - x0, dy = y - y0; // frac
@@ -147,7 +147,7 @@ cv::Mat& BicubicInterpolationResizer::resize(cv::Mat& image){
         std::array<std::array<double, 3>, 4> intermediaryResults = createIntermediaryMatrix();
         for(auto i = 0; i < 4; ++i){
             for(auto j = 0; j < 4; ++j){
-                const cv::Vec3b p = image.at<cv::Vec3b>(checkRowIfExist(image, x0, j-1), checkColIfExist(image, y0, i-1));
+                const cv::Vec3b p = image.at<cv::Vec3b>(checkColIfExist(image, y0, i-1), checkRowIfExist(image, x0, j-1));
                 for(auto k = 0; k < 3; ++k)
                     intermediaryResults[i][k] += p[k] * xCoeffs[j]; 
             }

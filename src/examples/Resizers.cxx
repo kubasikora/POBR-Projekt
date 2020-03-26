@@ -14,7 +14,7 @@ int main(int argc, char** argv){
 	    return -1;
     }
 
-    const int width = 100, height = 100;
+    const int width = 1000, height = 1000;
     cv::Mat nn = image.clone(), bil = image.clone(), bic = image.clone();
     POBR::NearestNeighbourInterpolationResizer nnr(height, width);
     POBR::BilinearInterpolationResizer blr(height, width);
