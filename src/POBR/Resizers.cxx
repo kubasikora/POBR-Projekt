@@ -7,30 +7,30 @@
 namespace POBR {
 
 cv::Mat& BilinearInterpolationResizer::resize(cv::Mat& image){
-    const double xRatio = static_cast<double>(image.rows) / static_cast<double>(xSize_), yRatio = static_cast<double>(image.cols) / static_cast<double>(ySize_);
-    cv::Mat resizedImage(xSize_, ySize_, image.type());
+    const double xRatio = static_cast<double>(image.cols) / static_cast<double>(xSize_), yRatio = static_cast<double>(image.rows) / static_cast<double>(ySize_);
+    cv::Mat resizedImage(ySize_, xSize_, image.type());
 
     resizedImage.forEach<cv::Vec3b>([&](cv::Vec3b& pixel, const int position[]){
-        const int i = position[0], j = position[1];
+        const int i = position[1], j = position[0];
         const double x = i*xRatio, y = j*yRatio;
         const int x0 = x, y0 = y; // floor 
         const double dx = x - x0, dy = y - y0; // frac
         
         int x1, y1;
-        if (x0 + 1 >= image.rows)
+        if (x0 + 1 >= image.cols)
             x1 = x0;
         else
             x1 = x0 + 1;
         
-        if (y0 + 1 >= image.cols)
+        if (y0 + 1 >= image.rows)
             y1 = y0;
         else
             y1 = y0 + 1;
 
-        const cv::Vec3b p00 = image.at<cv::Vec3b>(x0, y0);
-        const cv::Vec3b p01 = image.at<cv::Vec3b>(x0, y1);
-        const cv::Vec3b p10 = image.at<cv::Vec3b>(x1, y0);
-        const cv::Vec3b p11 = image.at<cv::Vec3b>(x1, y1);
+        const cv::Vec3b p00 = image.at<cv::Vec3b>(y0, x0);
+        const cv::Vec3b p01 = image.at<cv::Vec3b>(y1, x0);
+        const cv::Vec3b p10 = image.at<cv::Vec3b>(y0, x1);
+        const cv::Vec3b p11 = image.at<cv::Vec3b>(y1, x1);
 
         for(auto i = 0; i < pixel.channels; ++i){
             pixel[i] = norm(interpolate(interpolate(p00[i], p10[i], dx), interpolate(p01[i], p11[i], dx), dy));
