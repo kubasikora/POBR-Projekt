@@ -25,3 +25,6 @@ target_link_libraries(DetectBK POBR ${OpenCV_LIBS} yaml-cpp)
 
 add_executable(Resizers src/examples/Resizers.cxx)
 target_link_libraries(Resizers POBR ${OpenCV_LIBS})
+
+add_executable(Filters src/examples/Filters.cxx)
+target_link_libraries(Filters POBR ${OpenCV_LIBS})
