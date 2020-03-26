@@ -51,50 +51,50 @@ uchar BilinearInterpolationResizer::norm(const double n){
 }
 
 cv::Mat& NearestNeighbourInterpolationResizer::resize(cv::Mat& image){
-    const double xRatio = static_cast<double>(image.rows) / static_cast<double>(xSize_), yRatio = static_cast<double>(image.cols) / static_cast<double>(ySize_);
-    cv::Mat resizedImage(xSize_, ySize_, image.type());
+    const double xRatio = static_cast<double>(image.cols) / static_cast<double>(xSize_), yRatio = static_cast<double>(image.rows) / static_cast<double>(ySize_);
+    cv::Mat resizedImage(ySize_, xSize_, image.type());
     resizedImage.forEach<cv::Vec3b>([&](cv::Vec3b& pixel, const int position[]){
-        const int i = position[0], j = position[1];
+        const int j = position[0], i = position[1];
         const double x = i*xRatio;
         const double y = j*yRatio;
         const int x0 = x, y0 = y; // floor 
 
         
         int x1, y1;
-        if (x0 + 1 >= image.rows)
+        if (x0 + 1 >= image.cols)
             x1 = x0;
         else
             x1 = x0 + 1;
         
-        if (y0 + 1 >= image.cols)
+        if (y0 + 1 >= image.rows)
             y1 = y0;
         else
             y1 = y0 + 1;
 
         
-        const auto p00 = findDistance(x0, y0, position);
-        const auto p10 = findDistance(x1, y0, position);
-        const auto p01 = findDistance(x0, y1, position);
-        const auto p11 = findDistance(x1, y1, position);
+        const auto p00 = findDistance(y0, y0, position);
+        const auto p10 = findDistance(y0, x1, position);
+        const auto p01 = findDistance(y1, x0, position);
+        const auto p11 = findDistance(y1, x1, position);
 
         const auto minim = std::min(std::min(p00, p10), std::min(p01, p11));
 
         if(p00 == minim)
-            pixel = image.at<cv::Vec3b>(x0, y0);
+            pixel = image.at<cv::Vec3b>(y0, x0);
         if(p10 == minim)
-            pixel = image.at<cv::Vec3b>(x1, y0);
+            pixel = image.at<cv::Vec3b>(y1, x1);
         if(p01 == minim)
-            pixel = image.at<cv::Vec3b>(x0, y1);
+            pixel = image.at<cv::Vec3b>(y1, x0);
         if(p11 == minim)
-            pixel = image.at<cv::Vec3b>(x1, y1);
+            pixel = image.at<cv::Vec3b>(y1, x1);
     });
     image = resizedImage;
 
    return image; 
 }
 
-double NearestNeighbourInterpolationResizer::findDistance(const double x, const double y, const int position[]){
-    return std::sqrt(std::pow(position[0] - x, 2) + std::pow(position[1] - y, 2));
+double NearestNeighbourInterpolationResizer::findDistance(const double y, const double x, const int position[]){
+    return std::sqrt(std::pow(position[1] - x, 2) + std::pow(position[0] - y, 2));
 }
 
 const std::array<double, 4> BicubicInterpolationResizer::evaluateCoefficients(const double x){
