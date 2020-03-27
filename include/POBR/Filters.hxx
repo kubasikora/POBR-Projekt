@@ -28,7 +28,26 @@ class MedianFilter : public Filter {
     virtual cv::Mat filter(cv::Mat& image) override;
   
   private:
+    const int windowSize_;
+    const int offset_;
+};
 
+class ErosionFilter : public Filter {
+  public:
+    ErosionFilter(const int windowSize);
+    virtual cv::Mat filter(cv::Mat& image) override;
+  
+  private:
+    const int windowSize_;
+    const int offset_;
+};
+
+class DilationFilter : public Filter {
+  public:
+    DilationFilter(const int windowSize);
+    virtual cv::Mat filter(cv::Mat& image) override;
+  
+  private:
     const int windowSize_;
     const int offset_;
 };

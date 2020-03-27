@@ -14,11 +14,19 @@ int main(int argc, char** argv){
 	    return -1;
     }
 
-    POBR::MedianFilter mf(5);
-    cv::Mat filtered = mf.filter(image);
-    
+    POBR::MedianFilter mf(3);
+    POBR::DilationFilter df(3);
+    POBR::ErosionFilter ef(3);
+
     cv::imshow("original", image);
-    cv::imshow("filtered", filtered);
+    cv::Mat medianFiltered = mf.filter(image);
+    cv::imshow("median filtered", medianFiltered);
+
+    cv::Mat dilationFiltered = df.filter(image);
+    cv::imshow("dilation filtered", dilationFiltered);
+
+    cv::Mat erosionFiltered = ef.filter(image);
+    cv::imshow("erosion filtered", erosionFiltered);
     cv::waitKey(-1);
 
     cv::Mat lowPassKernel = (cv::Mat_<double>(5,5) << 0, 0, 0, 0, 0, 
