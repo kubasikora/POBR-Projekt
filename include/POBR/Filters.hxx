@@ -55,14 +55,10 @@ class DilationFilter : public Filter {
 
 class GaussianFilter : public ConvolutionalFilter {
   public:
-    GaussianFilter(const int windowSizeX, const int windowSizeY, const double variance);
+    GaussianFilter(const int windowSize, const double variance);
 
   private:
-    static cv::Mat createKernel(const int windowSizeX, const int windowSizeY, const double variance);
-
-    // const int filterOffsetX_;
-    // const int filterOffsetY_;
-    // const cv::Mat kernel_;
+    static cv::Mat createKernel(const int windowSize, const double variance);
 
 };
 

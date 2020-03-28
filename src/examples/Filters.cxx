@@ -14,41 +14,22 @@ int main(int argc, char** argv){
 	    return -1;
     }
 
-    // {   
-    //     std::cout << "creating filter" << std::endl;
-    //     POBR::MedianFilter mf(3);
-    //     std::cout << "filtering" << std::endl;
-    //     cv::Mat medianFiltered = mf.filter(image);
-    //     std::cout << "displaying" << std::endl;
-    //     cv::imshow("median filtered", medianFiltered);
-    //     cv::waitKey(-1);
-    // }
-    {
-        std::cout << "creating filter" << std::endl;
-        POBR::GaussianFilter gf(11, 11, 1.0);
-        std::cout << "filtering" << std::endl;
-        cv::Mat gaussianFiltered = gf.filter(image);
-        std::cout << "displaying" << std::endl;
-        cv::imshow("gaussian filtered", gaussianFiltered);
-        cv::waitKey(-1);
-    }
-    // {
-    //     std::cout << "creating filter" << std::endl;
-    //     POBR::DilationFilter df(3);
-    //     std::cout << "filtering" << std::endl;
-    //     cv::Mat dilationFiltered = df.filter(image);
-    //     std::cout << "displaying" << std::endl;
-    //     cv::imshow("dilation filtered", dilationFiltered);
-    //     cv::waitKey(-1);
-    // }{
-    //     std::cout << "creating filter" << std::endl;
-    //     POBR::ErosionFilter ef(3);
-    //     std::cout << "filtering" << std::endl;
-    //     cv::Mat erosionFiltered = ef.filter(image);
-    //     std::cout << "displaying" << std::endl;
-    //     cv::imshow("erosion filtered", erosionFiltered);
-    //     cv::waitKey(-1);
-    // }
+    POBR::MedianFilter mf(3);
+    cv::Mat medianFiltered = mf.filter(image);
+    cv::imshow("median filtered", medianFiltered);
+
+    POBR::GaussianFilter gf(11, 1.0);
+    cv::Mat gaussianFiltered = gf.filter(image);
+    cv::imshow("gaussian filtered", gaussianFiltered);
+
+    POBR::DilationFilter df(3);
+    cv::Mat dilationFiltered = df.filter(image);
+    cv::imshow("dilation filtered", dilationFiltered);
+
+    POBR::ErosionFilter ef(3);
+    cv::Mat erosionFiltered = ef.filter(image);
+    cv::imshow("erosion filtered", erosionFiltered);
+    cv::waitKey(-1);
     
 
     cv::Mat lowPassKernel = (cv::Mat_<double>(5,5) << 0, 0, 0, 0, 0, 
