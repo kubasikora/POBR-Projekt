@@ -47,7 +47,9 @@ MedianFilter::MedianFilter(const int windowSize) :
 
 cv::Mat MedianFilter::filter(cv::Mat& image){
     const int imageHeight = image.rows, imageWidth = image.cols;
-    cv::Mat filteredImage(cv::Size(imageWidth, imageHeight), image.type()); // size(width, height)
+    std::cout << imageHeight << " : " << imageWidth << std::endl;
+    cv::Mat filteredImage(imageWidth, imageHeight, image.type()); // size(width, height)
+    std::cout << "image created" << std::endl;
 
     filteredImage.forEach<cv::Vec3b>([&](cv::Vec3b& pixel, const int position[]){
         const int y = position[0], x = position[1];
@@ -153,5 +155,28 @@ cv::Mat DilationFilter::filter(cv::Mat& image){
 
     return filteredImage;
 }
+
+GaussianFilter::GaussianFilter(const int windowSizeX, const int windowSizeY, const double variance) : 
+    // filterOffsetX_(windowSizeX % 2 == 1 ? windowSizeX / 2 : throw InvalidWindowSizeException()), 
+    // filterOffsetY_(windowSizeX % 2 == 1 ? windowSizeX / 2 : throw InvalidWindowSizeException()), 
+    // kernel_(createKernel(windowSizeX, windowSizeY, variance)) {}
+    ConvolutionalFilter(createKernel(windowSizeX, windowSizeY, variance)) {}
+
+cv::Mat GaussianFilter::createKernel(const int windowSizeX, const int windowSizeY, const double variance){
+    cv::Mat_<double> kernel(cv::Size(windowSizeX, windowSizeY));
+    const int xOffset = windowSizeX / 2;
+    const int yOffset = windowSizeY / 2;
+    const double pi = 3.1415;
+    kernel.forEach([&](double& cell, const int position[]){
+        const int y = position[0], x = position[1];
+        cell = 1 / (2*pi*std::pow(variance,2)) * std::exp(-(std::pow(x - xOffset, 2) + std::pow(y - yOffset, 2))/(2*std::pow(variance, 2)));
+    });
+    return kernel;
+}
+
+// cv::Mat GaussianFilter::filter(cv::Mat& image){
+//     return image;
+// }
+
 
 }

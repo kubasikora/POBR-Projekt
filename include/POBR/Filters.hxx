@@ -14,7 +14,8 @@ class ConvolutionalFilter : public Filter {
   public:
     ConvolutionalFilter(const cv::Mat& kernel);
     virtual cv::Mat filter(cv::Mat& image) override;
-  private: 
+  
+  protected: 
     uchar normPixel(double i);
     
     const cv::Mat kernel_;
@@ -50,6 +51,19 @@ class DilationFilter : public Filter {
   private:
     const int windowSize_;
     const int offset_;
+};
+
+class GaussianFilter : public ConvolutionalFilter {
+  public:
+    GaussianFilter(const int windowSizeX, const int windowSizeY, const double variance);
+
+  private:
+    static cv::Mat createKernel(const int windowSizeX, const int windowSizeY, const double variance);
+
+    // const int filterOffsetX_;
+    // const int filterOffsetY_;
+    // const cv::Mat kernel_;
+
 };
 
 class InvalidWindowSizeException : public std::exception {};
