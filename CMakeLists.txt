@@ -28,3 +28,6 @@ target_link_libraries(Resizers POBR ${OpenCV_LIBS})
 
 add_executable(Filters src/examples/Filters.cxx)
 target_link_libraries(Filters POBR ${OpenCV_LIBS})
+
+add_executable(Segmentation src/examples/Segmentation.cxx)
+target_link_libraries(Segmentation POBR ${OpenCV_LIBS})

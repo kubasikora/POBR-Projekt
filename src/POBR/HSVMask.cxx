@@ -71,13 +71,20 @@ ValueInterval::ValueInterval(const int lower, const int upper) :
 HSVMask::HSVMask(const HueInterval hue, const SaturationInterval saturation, const ValueInterval value) :
                     hueInterval_(hue), saturationInterval_(saturation), valueInterval_(value) {}
 
-cv::Mat& HSVMask::apply(cv::Mat& image){
-    image.forEach<cv::Vec3b>([this](cv::Vec3b& pixel, const int[]){
-        pixel = this->maskPixel(pixel, 0, this->hueInterval_);
-        pixel = this->maskPixel(pixel, 1, this->saturationInterval_);
-        pixel = this->maskPixel(pixel, 2, this->valueInterval_);
+cv::Mat HSVMask::apply(cv::Mat& image){
+    cv::Mat maskedImage(image.size(), image.type());
+    image.forEach<cv::Vec3b>([&](cv::Vec3b& pixel, const int position[]){
+        if(this->hueInterval_.isInRange(pixel[0]) && this->saturationInterval_.isInRange(pixel[1]) && this->valueInterval_.isInRange(pixel[2])){
+            maskedImage.at<cv::Vec3b>(position) = { 255, 255, 255 };
+        } else {
+            maskedImage.at<cv::Vec3b>(position) = { 0, 0, 0 };
+        }
+        // pixel = this->maskPixel(pixel, 0, this->hueInterval_);
+        // pixel = this->maskPixel(pixel, 1, this->saturationInterval_);
+        // pixel = this->maskPixel(pixel, 2, this->valueInterval_);
     });
-    return image;
+    // image = maskedImage;
+    return maskedImage;
 }
 
 cv::Vec3b& HSVMask::maskPixel(cv::Vec3b& pixel, const int position, const ChannelInterval& interval){

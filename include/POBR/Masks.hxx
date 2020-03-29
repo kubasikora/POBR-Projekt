@@ -37,7 +37,7 @@ class ValueInterval : public ChannelInterval {
 class HSVMask {
   public:
     HSVMask(const HueInterval hue, const SaturationInterval saturation, const ValueInterval value);
-    cv::Mat& apply(cv::Mat& image);
+    cv::Mat apply(cv::Mat& image);
 
   private:
     cv::Vec3b& maskPixel(cv::Vec3b& pixel, const int position, const ChannelInterval& interval);

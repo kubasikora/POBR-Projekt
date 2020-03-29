@@ -75,70 +75,66 @@ int main(int argc, char** argv){
         equalizer.equalize(image);
     }
 
-    POBR::ErosionFilter ef(3);
-    POBR::DilationFilter df(3);
-
 
     // segmentation -> thresholding
     cv::Mat result(image.size(), image.type());
     if(config->segmentation.maskImage){
         POBR::MaskApplier masks;
         if(config->segmentation.colorMasks["red"]){
-            cv::Mat partialImage = image.clone();
+            cv::Mat redImage = image.clone();
             POBR::HSVMask redMask = POBR::MaskFactory(config->segmentation.redMask).build();
-            redMask.apply(partialImage);
-            partialImage = df.filter(partialImage);
-            partialImage = ef.filter(partialImage);
-            partialImage = ef.filter(partialImage);
-            partialImage = df.filter(partialImage);
-            // cv::imshow("red", partialImage);
-            // cv::waitKey(-1);
-            result = result | partialImage;
-            // masks.add(redMask);
+            redImage = redMask.apply(redImage);
+
+            POBR::ErosionFilter ef(3);
+            POBR::DilationFilter df(3);
+            redImage = ef.filter(redImage);
+            redImage = df.filter(redImage);
+            redImage = df.filter(redImage);
+
+            // extract red segments
+        
         }
         if(config->segmentation.colorMasks["blue"]){
-            cv::Mat partialImage = image.clone();
+            cv::Mat blueImage = image.clone();
             POBR::HSVMask blueMask = POBR::MaskFactory(config->segmentation.blueMask).build();
-            blueMask.apply(partialImage);
-            partialImage = df.filter(partialImage);
-            partialImage = ef.filter(partialImage);
-            partialImage = ef.filter(partialImage);
-            partialImage = df.filter(partialImage);
-            // cv::imshow("blue", partialImage);
-            // cv::waitKey(-1);
-            result = result | partialImage;
-            // masks.add(blueMask);
+            blueImage = blueMask.apply(blueImage);
+
+            POBR::ErosionFilter ef(3);
+            POBR::DilationFilter df(7);
+            blueImage = ef.filter(blueImage);
+            blueImage = df.filter(blueImage);
+            blueImage = ef.filter(blueImage);
+
+            // extract blue segments
         }
         if(config->segmentation.colorMasks["white"]){
-            cv::Mat partialImage = image.clone();
+            cv::Mat whiteImage = image.clone();
             POBR::HSVMask whiteMask = POBR::MaskFactory(config->segmentation.whiteMask).build();
-            whiteMask.apply(partialImage);
-            partialImage = df.filter(partialImage);
-            partialImage = ef.filter(partialImage);
-            partialImage = ef.filter(partialImage);
-            partialImage = df.filter(partialImage);
-            // cv::imshow("white", partialImage);
-            // cv::waitKey(-1);
-            result = result | partialImage;
-            // masks.add(whiteMask);
+            whiteImage = whiteMask.apply(whiteImage);
+
+            POBR::ErosionFilter ef(3);
+            POBR::DilationFilter df(3);
+            
+            whiteImage = ef.filter(whiteImage);
+            whiteImage = df.filter(whiteImage);
+            whiteImage = df.filter(whiteImage);
+
+            // extract white segments
         }
         if(config->segmentation.colorMasks["yellow"]){
-            cv::Mat partialImage = image.clone();
+            cv::Mat yellowImage = image.clone();
             POBR::HSVMask yellowMask = POBR::MaskFactory(config->segmentation.yellowMask).build();
-            yellowMask.apply(partialImage);
-            partialImage = df.filter(partialImage);
-            partialImage = ef.filter(partialImage);
-            partialImage = ef.filter(partialImage);
-            partialImage = df.filter(partialImage);
-            // cv::imshow("yellow", partialImage);
-            // cv::waitKey(-1);
-            result = result | partialImage;
-            //masks.add(yellowMask);
-        }
-        // masks.apply(image);
+            yellowImage = yellowMask.apply(yellowImage);
 
-        // image = df.filter(image);
-        // image = ef.filter(image);
+            POBR::ErosionFilter ef(3);
+            POBR::DilationFilter df(3);
+        
+            yellowImage = ef.filter(yellowImage);
+            yellowImage = df.filter(yellowImage);
+            yellowImage = df.filter(yellowImage);
+
+            // extract yellow segments
+        }
     }
     
     image = result;
