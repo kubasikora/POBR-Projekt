@@ -1,6 +1,6 @@
 preprocessing:
   prescale:
-    algorithm: Bilinear
+    algorithm: Bicubic
     imageHeight: 1000
     imageWidth: 1000
   
@@ -10,14 +10,14 @@ preprocessing:
     colorReducerRatio: 10
  
 segmentation:
-  maskImage: false
+  maskImage: true
 
   useRed: true
   redMask: 
     lowerHue: -20
     upperHue: 20
 
-    lowerSaturation: 150
+    lowerSaturation: 180
     upperSaturation: 255
 
     lowerValue: 100

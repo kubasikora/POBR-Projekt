@@ -3,6 +3,7 @@
 #include"Config.hxx"
 #include"POBR/Preprocessing.hxx"
 #include"POBR/Masks.hxx"
+#include"POBR/Filters.hxx"
 
 int main(int argc, char** argv){ 
     if(argc < 2){
@@ -52,11 +53,21 @@ int main(int argc, char** argv){
         POBR::ColorReducer reducer(config->preprocessing.colorReducerRatio);
         reducer.reduce(image);
     }
+    
+    POBR::GaussianFilter gf(3, 1.0);
+    image = gf.filter(image);
+
+    cv::Mat highPassKernel = (cv::Mat_<double>(5,5) << 0, 0, 0, 0, 0, 
+                                                      0, -0.5, -0.5, -0.5, 0,
+                                                      0, -0.5, 5, -0.5, 0,
+                                                      0, -0.5, -0.5, -0.5, 0,
+                                                      0, 0, 0, 0, 0);
+    POBR::ConvolutionalFilter highPass(highPassKernel);
+    image = highPass.filter(image);
 
     // conversion -> to hsv
     POBR::BGR2HSVConverter converter;
     converter.convert(image);
-
 
     // preprocessing -> histogram equalization
     if(config->preprocessing.equalizeHistogram) {
@@ -64,28 +75,73 @@ int main(int argc, char** argv){
         equalizer.equalize(image);
     }
 
+    POBR::ErosionFilter ef(3);
+    POBR::DilationFilter df(3);
+
+
     // segmentation -> thresholding
+    cv::Mat result(image.size(), image.type());
     if(config->segmentation.maskImage){
         POBR::MaskApplier masks;
         if(config->segmentation.colorMasks["red"]){
+            cv::Mat partialImage = image.clone();
             POBR::HSVMask redMask = POBR::MaskFactory(config->segmentation.redMask).build();
-            masks.add(redMask);
+            redMask.apply(partialImage);
+            partialImage = df.filter(partialImage);
+            partialImage = ef.filter(partialImage);
+            partialImage = ef.filter(partialImage);
+            partialImage = df.filter(partialImage);
+            // cv::imshow("red", partialImage);
+            // cv::waitKey(-1);
+            result = result | partialImage;
+            // masks.add(redMask);
         }
         if(config->segmentation.colorMasks["blue"]){
+            cv::Mat partialImage = image.clone();
             POBR::HSVMask blueMask = POBR::MaskFactory(config->segmentation.blueMask).build();
-            masks.add(blueMask);
+            blueMask.apply(partialImage);
+            partialImage = df.filter(partialImage);
+            partialImage = ef.filter(partialImage);
+            partialImage = ef.filter(partialImage);
+            partialImage = df.filter(partialImage);
+            // cv::imshow("blue", partialImage);
+            // cv::waitKey(-1);
+            result = result | partialImage;
+            // masks.add(blueMask);
         }
         if(config->segmentation.colorMasks["white"]){
+            cv::Mat partialImage = image.clone();
             POBR::HSVMask whiteMask = POBR::MaskFactory(config->segmentation.whiteMask).build();
-            masks.add(whiteMask);
+            whiteMask.apply(partialImage);
+            partialImage = df.filter(partialImage);
+            partialImage = ef.filter(partialImage);
+            partialImage = ef.filter(partialImage);
+            partialImage = df.filter(partialImage);
+            // cv::imshow("white", partialImage);
+            // cv::waitKey(-1);
+            result = result | partialImage;
+            // masks.add(whiteMask);
         }
         if(config->segmentation.colorMasks["yellow"]){
+            cv::Mat partialImage = image.clone();
             POBR::HSVMask yellowMask = POBR::MaskFactory(config->segmentation.yellowMask).build();
-            masks.add(yellowMask);
+            yellowMask.apply(partialImage);
+            partialImage = df.filter(partialImage);
+            partialImage = ef.filter(partialImage);
+            partialImage = ef.filter(partialImage);
+            partialImage = df.filter(partialImage);
+            // cv::imshow("yellow", partialImage);
+            // cv::waitKey(-1);
+            result = result | partialImage;
+            //masks.add(yellowMask);
         }
-        masks.apply(image);
+        // masks.apply(image);
+
+        // image = df.filter(image);
+        // image = ef.filter(image);
     }
     
+    image = result;
     // conversion -> to rgb
     POBR::HSV2BGRConverter reverter;
     reverter.convert(image);
