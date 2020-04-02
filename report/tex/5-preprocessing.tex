@@ -177,7 +177,7 @@ W~celu wyboru algorytmu zmiany rozmiaru obrazka do projektowanego systemu wykryw
             };
         \end{axis}
     \end{tikzpicture}
-    \caption{Porównanie czasu zmiany obrazka 200x200px do docelowego rozmiaru w~zależności od długości boku kwadratowego obrazk}
+    \caption{Porównanie czasu zmiany obrazka 200x200px do docelowego rozmiaru w~zależności od długości boku kwadratowego obrazka}
     \label{fig:resizing-time}
 \end{figure}
 
@@ -188,5 +188,12 @@ Na wykresie~\ref{fig:resizing-time} przedstawiono zależność czasu przetwarzan
 Na podstawie wykonanego eksperymentu, zdecydowałem się na wybór algorytmu interpolacji dwukubicznej. Krótki czas przetwarzania nie jest szczególnie oczekiwaną cechą od projektowanego systemu oraz algorytm będzie stosowany do zmniejszania obrazków a~nie do ich znacznego powiększania, dlatego też z~wszystkich trzech przedstawionych rozwiązań, algorytm dwukubiczny jest najlepszy.
 
 \subsection{Filtracja zakłóceń}
-\todo{Opisać algorytm filtracji zakłóceń - filtracja medianowa. Znaleźć źródła.}
+\todo{Opisać przygotowane algorytmy filtracji \begin{itemize}
+    \item medianowa
+    \item erozyjny
+    \item dylacyjny
+    \item gaussowski
+    \item splotowy z podaniem jądra 
+\end{itemize} Znaleźć źródła.}
+
 \todo{Opisać dlaczego rozmiar okna filtru nie jest parametrem typu w szablonie a parametrem obiektu - głównie dlatego że to projekt badawczy i żeby sprawdzić więcej opcji bez rekompilacji całej biblioteki, jednak najlepszy efekty będzie przy zastosowaniu metaprogramowania przy użyciu szablonów, gdzie rozmiar okna będzie parametrem typu}

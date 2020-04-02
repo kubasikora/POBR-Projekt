@@ -14,6 +14,14 @@ int main(int argc, char** argv){
 	    return -1;
     }
 
+    cv::Mat sobelKernel = (cv::Mat_<double>(5,5) << -0, -2, 0, 
+                                                    -2, 8, -2,
+                                                    0, -2, 0);
+    POBR::ConvolutionalFilter s(sobelKernel);
+    cv::Mat sobelFiltered = s.filter(image);
+    cv::imshow("sobel filtered", sobelFiltered);
+    cv::waitKey(-1);
+
     POBR::MedianFilter mf(3);
     cv::Mat medianFiltered = mf.filter(image);
     cv::imshow("median filtered", medianFiltered);
