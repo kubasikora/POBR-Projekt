@@ -11,51 +11,67 @@ SegmentationUnit::SegmentationUnit(cv::Mat& red, cv::Mat& blue, cv::Mat& white, 
     states_(createInitialStateMatrix(red)) {}
 
 
-cv::Mat_<SegmentationUnit::Color> SegmentationUnit::mergeColorMatrices(const cv::Mat& red, const cv::Mat& blue, const cv::Mat& white, const cv::Mat& yellow){
+cv::Mat_<Color> SegmentationUnit::mergeColorMatrices(const cv::Mat& red, const cv::Mat& blue, const cv::Mat& white, const cv::Mat& yellow){
     const int imageHeight = red.rows, imageWidth = red.cols;
-    cv::Mat_<SegmentationUnit::Color> colors(cv::Size(imageWidth, imageHeight)); 
-    std::cout << colors.rows << " : " << colors.cols << std::endl;
-    colors.forEach([](SegmentationUnit::Color& pixel, const int[]) -> void {
+    cv::Mat_<Color> colors(cv::Size(imageWidth, imageHeight)); 
+    colors.forEach([](Color& pixel, const int[]) -> void {
         pixel = OTHER;
     });
-    std::cout << colors.at<SegmentationUnit::Color>(10, 21) << std::endl;
-    auto merger = [&colors](SegmentationUnit::Color baseColor){
+
+    auto merger = [&colors](Color baseColor){
         return [&colors, baseColor](auto& pixel, const int position[]) -> void {
             if(pixel == 0)
                 return;
 
-            std::cout << baseColor << std::endl;
             const int y = position[0], x = position[1];
-            colors.at<SegmentationUnit::Color>(y, x) = baseColor;  
+            colors.at<Color>(y, x) = baseColor;  
         };
     };
 
     red.forEach<uchar>(merger(RED));
-    std::cout << colors.at<SegmentationUnit::Color>(10, 21) << std::endl;
     blue.forEach<uchar>(merger(BLUE));
-    std::cout << colors.at<SegmentationUnit::Color>(10, 21) << std::endl;
     white.forEach<uchar>(merger(WHITE));
-    std::cout << colors.at<SegmentationUnit::Color>(10, 21) << std::endl;
     yellow.forEach<uchar>(merger(YELLOW));
-    std::cout << colors.at<SegmentationUnit::Color>(10, 21) << std::endl;
 
     return colors;
 }
 
-cv::Mat_<SegmentationUnit::State> SegmentationUnit::createInitialStateMatrix(const cv::Mat& exampleImage){
+cv::Mat_<State> SegmentationUnit::createInitialStateMatrix(const cv::Mat& exampleImage){
     const int imageHeight = exampleImage.rows, imageWidth = exampleImage.cols;
-    cv::Mat_<SegmentationUnit::State> states(cv::Size(imageWidth, imageHeight)); 
-    states.forEach([](SegmentationUnit::State& pixel, const int[]) -> void {
+    cv::Mat_<State> states(cv::Size(imageWidth, imageHeight)); 
+    states.forEach([](State& pixel, const int[]) -> void {
         pixel = NOTVISITED;
     });
     return states;
 }
 
-SegmentList SegmentationUnit::segmentImage(std::ostream& out){
-    std::cout << colors_.at<SegmentationUnit::Color>(10, 21) << std::endl;
-    std::cout << states_.at<SegmentationUnit::State>(10, 21) << std::endl;
-    out << colors_ << std::endl;
-    return SegmentList();
+SegmentList SegmentationUnit::segmentImage(){
+    SegmentList segments;
+    colors_.forEach([&segments, this](Color cell, const int position[]){
+        const int y = position[0], x = position[1];
+        if(cell == OTHER){
+            this->states_.at<State>(y,x) = CHECKED;
+            return;
+        }
+        
+        Color seed = cell; std::vector<PointPosition> segmentPixels;
+        std::stack<PointPosition> processList; processList.push(std::make_pair(y, x));
+        while(!processList.empty()){
+            PointPosition pixel = processList.top(); 
+            if(this->colors_.at<Color>(pixel.first, pixel.second) == seed && this->states_.at<State>(pixel.first, pixel.second) == NOTVISITED){
+                this->states_.at<State>(pixel.first, pixel.second) = ADDED;
+                segmentPixels.push_back(std::make_pair(pixel.first, pixel.second));
+                /* dodaj piksele */
+
+            } else {
+                this->states_.at<State>(pixel.first, pixel.second) = CHECKED;
+            }
+            processList.pop();
+        }
+
+        /* dodaj do listy segmentów */
+    });
+    return segments;
     /*
         1. stworzyć macierz obrazka typu Mat_<Color> 
         2. stworzyć macierz stanów typu Mat_<State>

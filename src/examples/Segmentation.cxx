@@ -8,12 +8,6 @@
 #include<fstream>
 
 int main(int argc, char** argv){
-    enum {
-        x, Y
-    } a = Y;
-    std::cout << a << std::endl;
-
-
     if(argc < 2){
         std::cout << "Usage: Segmentation <imagePath> " << std::endl;
 	    return -1;
@@ -55,12 +49,10 @@ int main(int argc, char** argv){
     cv::Mat yellow = yellowMask.apply(image);
 
     POBR::SegmentationUnit su(red, blue, white, yellow);
+    POBR::SegmentList x = su.segmentImage();
 
-    std::ofstream file;
-    file.open("./image.txt");
+    std::cout << x.size() << std::endl;
 
-    su.segmentImage(file);
-    file.close();
 
     return 0;
 }
