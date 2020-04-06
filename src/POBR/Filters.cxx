@@ -76,23 +76,41 @@ ErosionFilter::ErosionFilter(const int windowSize) :
 
 cv::Mat ErosionFilter::filter(cv::Mat& image){
     const int imageHeight = image.rows, imageWidth = image.cols;
-    cv::Mat filteredImage(cv::Size(imageWidth, imageHeight), image.type()); // size(width, height)
+    cv::Mat filteredImage(image.size(), image.type());
 
-    filteredImage.forEach<cv::Vec3b>([&](cv::Vec3b& pixel, const int position[]){
-        const int y = position[0], x = position[1];
-        pixel = image.at<cv::Vec3b>(y, x);
-        if(x < offset_ || y < offset_ || x >= imageWidth - offset_ || y >= imageHeight - offset_)
-            return;
-       
-        for(auto i = -offset_; i <= offset_; ++i){
-            for(auto j = -offset_; j <= offset_; ++j){
-                for(auto k = 0; k < 3; ++k){
-                    const uchar pixelTemporary = image.at<cv::Vec3b>(y-j, x-i)[k];
-                    pixel[k] = std::min(pixel[k], pixelTemporary);
+    if(image.type() == CV_8U){
+        filteredImage.forEach<uchar>([&](uchar& pixel, const int position[]){
+            const int y = position[0], x = position[1];
+            if(x < offset_ || y < offset_ || x >= imageWidth - offset_ || y >= imageHeight - offset_){
+                pixel = image.at<uchar>(y, x);
+                return;
+            }
+        
+            for(auto i = -offset_; i <= offset_; ++i){
+                for(auto j = -offset_; j <= offset_; ++j){
+                    const uchar pixelTemporary = image.at<uchar>(y-j, x-i);
+                    pixel = std::min(pixelTemporary, pixel);
                 }
             }
-        }
-    });
+        });
+    } else {
+        filteredImage.forEach<cv::Vec3b>([&](cv::Vec3b& pixel, const int position[]){
+            const int y = position[0], x = position[1];
+            if(x < offset_ || y < offset_ || x >= imageWidth - offset_ || y >= imageHeight - offset_){
+                pixel = image.at<cv::Vec3b>(y, x);
+                return;
+            }
+        
+            for(auto i = -offset_; i <= offset_; ++i){
+                for(auto j = -offset_; j <= offset_; ++j){
+                    for(auto k = 0; k < 3; ++k){
+                        const uchar pixelTemporary = image.at<cv::Vec3b>(y-j, x-i)[k];
+                        pixel[k] = std::min(pixelTemporary, pixel[k]);
+                    }
+                }
+            }
+        });
+    }
 
     return filteredImage;
 }
@@ -103,36 +121,43 @@ DilationFilter::DilationFilter(const int windowSize) :
 
 cv::Mat DilationFilter::filter(cv::Mat& image){
     const int imageHeight = image.rows, imageWidth = image.cols;
-    cv::Mat filteredImage(cv::Size(imageWidth, imageHeight), image.type()); // size(width, height)
+    cv::Mat filteredImage(image.size(), image.type()); // size(width, height)
 
-    filteredImage.forEach<cv::Vec3b>([&](cv::Vec3b& pixel, const int position[]){
-        const int y = position[0], x = position[1];
-        if(x < offset_ || y < offset_ || x >= imageWidth - offset_ || y >= imageHeight - offset_){
-            pixel = image.at<cv::Vec3b>(y, x);
-            return;
-        }
-
-        // std::array<uchar, 3> pixels;
-        // std::for_each(pixels.begin(), pixels.end(), [&](auto& channel){
-        //     channel.reserve(windowSize_^2);
-        // });
-       
-        for(auto i = -offset_; i <= offset_; ++i){
-            for(auto j = -offset_; j <= offset_; ++j){
-                for(auto k = 0; k < 3; ++k){
-                    const uchar pixelTemporary = image.at<cv::Vec3b>(y-j, x-i)[k];
-                    pixel[k] = std::max(pixelTemporary, pixel[k]);
+    if(image.type() == CV_8U){
+        std::cout << "lel" << std::endl;
+        filteredImage.forEach<uchar>([&](uchar& pixel, const int position[]){
+            const int y = position[0], x = position[1];
+            if(x < offset_ || y < offset_ || x >= imageWidth - offset_ || y >= imageHeight - offset_){
+                pixel = image.at<uchar>(y, x);
+                return;
+            }
+        
+            for(auto i = -offset_; i <= offset_; ++i){
+                for(auto j = -offset_; j <= offset_; ++j){
+                    const uchar pixelTemporary = image.at<uchar>(y-j, x-i);
+                    pixel = std::max(pixelTemporary, pixel);
                 }
             }
-        }
+        });
+    }
+    else {
+        filteredImage.forEach<cv::Vec3b>([&](cv::Vec3b& pixel, const int position[]){
+            const int y = position[0], x = position[1];
+            if(x < offset_ || y < offset_ || x >= imageWidth - offset_ || y >= imageHeight - offset_){
+                pixel = image.at<cv::Vec3b>(y, x);
+                return;
+            }
         
-        // int counter = 0;
-        // std::for_each(pixels.begin(), pixels.end(), [&](auto& channel){
-        //     std::sort(channel.begin(), channel.end());
-        //     pixel[counter] = channel.back();
-        //     ++counter;
-        // });
-    });
+            for(auto i = -offset_; i <= offset_; ++i){
+                for(auto j = -offset_; j <= offset_; ++j){
+                    for(auto k = 0; k < 3; ++k){
+                        const uchar pixelTemporary = image.at<cv::Vec3b>(y-j, x-i)[k];
+                        pixel[k] = std::max(pixelTemporary, pixel[k]);
+                    }
+                }
+            }
+        });
+    }
 
     return filteredImage;
 }

@@ -1,43 +1,73 @@
 #include<opencv2/opencv.hpp>
 #include"POBR/Segmentation.hxx"
 #include<stack>
+#include<functional>
+#include<iostream>
 
 namespace POBR {
 
-SimpleThresholdHomogeneityTest::SimpleThresholdHomogeneityTest(const uchar threshold) :
-    threshold_(threshold) {}
+SegmentationUnit::SegmentationUnit(cv::Mat& red, cv::Mat& blue, cv::Mat& white, cv::Mat& yellow) : 
+    colors_(mergeColorMatrices(red, blue, white, yellow)),
+    states_(createInitialStateMatrix(red)) {}
 
-bool SimpleThresholdHomogeneityTest::testHomogeneity(const cv::Vec3b& p1, const cv::Vec3b& p2){
-    const double r1 = p1[2], r2 = p2[2], g1 = p1[1], g2 = p2[1], b1 = p1[0], b2 = p2[0];
-    const double diff = std::sqrt(std::pow(r1 - r2, 2) + std::pow(g1 -g2, 2) + std::pow(b1 - b2, 2));\
-    return diff <= threshold_;
+
+cv::Mat_<SegmentationUnit::Color> SegmentationUnit::mergeColorMatrices(const cv::Mat& red, const cv::Mat& blue, const cv::Mat& white, const cv::Mat& yellow){
+    const int imageHeight = red.rows, imageWidth = red.cols;
+    cv::Mat_<SegmentationUnit::Color> colors(cv::Size(imageWidth, imageHeight)); 
+    std::cout << colors.rows << " : " << colors.cols << std::endl;
+    colors.forEach([](SegmentationUnit::Color& pixel, const int[]) -> void {
+        pixel = OTHER;
+    });
+    std::cout << colors.at<SegmentationUnit::Color>(10, 21) << std::endl;
+    auto merger = [&colors](SegmentationUnit::Color baseColor){
+        return [&colors, baseColor](auto& pixel, const int position[]) -> void {
+            if(pixel == 0)
+                return;
+
+            std::cout << baseColor << std::endl;
+            const int y = position[0], x = position[1];
+            colors.at<SegmentationUnit::Color>(y, x) = baseColor;  
+        };
+    };
+
+    red.forEach<uchar>(merger(RED));
+    std::cout << colors.at<SegmentationUnit::Color>(10, 21) << std::endl;
+    blue.forEach<uchar>(merger(BLUE));
+    std::cout << colors.at<SegmentationUnit::Color>(10, 21) << std::endl;
+    white.forEach<uchar>(merger(WHITE));
+    std::cout << colors.at<SegmentationUnit::Color>(10, 21) << std::endl;
+    yellow.forEach<uchar>(merger(YELLOW));
+    std::cout << colors.at<SegmentationUnit::Color>(10, 21) << std::endl;
+
+    return colors;
 }
 
-RegionGrowingSegmentationUnit::RegionGrowingSegmentationUnit(SimpleThresholdHomogeneityTest test) :
-    hTest_(test) {}
+cv::Mat_<SegmentationUnit::State> SegmentationUnit::createInitialStateMatrix(const cv::Mat& exampleImage){
+    const int imageHeight = exampleImage.rows, imageWidth = exampleImage.cols;
+    cv::Mat_<SegmentationUnit::State> states(cv::Size(imageWidth, imageHeight)); 
+    states.forEach([](SegmentationUnit::State& pixel, const int[]) -> void {
+        pixel = NOTVISITED;
+    });
+    return states;
+}
 
-void RegionGrowingSegmentationUnit::segmentImage(cv::Mat& image){
-    std::stack<cv::Vec3b> points;
-
-    /* 
-        ******** spliting *********
-        set ProcessList = image
-        repeat 
-            extract first element of ProcessList
-            if region is uniform 
-                add to RegionList
-            else
-                split region into 4 sub-regions and add to ProcessList
-        until all regions removed from ProcessList
-
-
-        ********* merging *********
-        repeat 
-            extract each region from RegionList
-            traverse remainder of list to find similar region 
-            if they are neighbours 
-                merge regions
-        until no merges are possible
+SegmentList SegmentationUnit::segmentImage(std::ostream& out){
+    std::cout << colors_.at<SegmentationUnit::Color>(10, 21) << std::endl;
+    std::cout << states_.at<SegmentationUnit::State>(10, 21) << std::endl;
+    out << colors_ << std::endl;
+    return SegmentList();
+    /*
+        1. stworzyć macierz obrazka typu Mat_<Color> 
+        2. stworzyć macierz stanów typu Mat_<State>
+        3. dla każdego piksela jeśli nie jest Color::OTHER 
+            3.1 zapisz ziarno jako piksel
+            3.2 stworz stos jako jedyny element wejsciowy piksel
+            3.3 dopoki nie skonczą się piksele na stosie
+                3.3.1 pobierz piksel
+                3.3.2 jesli jest taki sam jak ziarno to zaznacz jako dodany, dodaj do boxa i pobierz sasiadow na stos jesli nie byli sprawdzeni
+                3.3.3 jesli nie jest taki sam jak ziarno to zaznacz jako sprawdzony
+            3.4 zwroc box
+        4. zwroc wszystkie boxy
     */
 }
 

@@ -72,18 +72,14 @@ HSVMask::HSVMask(const HueInterval hue, const SaturationInterval saturation, con
                     hueInterval_(hue), saturationInterval_(saturation), valueInterval_(value) {}
 
 cv::Mat HSVMask::apply(cv::Mat& image){
-    cv::Mat maskedImage(image.size(), image.type());
+    cv::Mat maskedImage(image.size(), CV_8U);
     image.forEach<cv::Vec3b>([&](cv::Vec3b& pixel, const int position[]){
         if(this->hueInterval_.isInRange(pixel[0]) && this->saturationInterval_.isInRange(pixel[1]) && this->valueInterval_.isInRange(pixel[2])){
-            maskedImage.at<cv::Vec3b>(position) = { 255, 255, 255 };
+            maskedImage.at<uchar>(position) = 255;
         } else {
-            maskedImage.at<cv::Vec3b>(position) = { 0, 0, 0 };
+            maskedImage.at<uchar>(position) = 0;
         }
-        // pixel = this->maskPixel(pixel, 0, this->hueInterval_);
-        // pixel = this->maskPixel(pixel, 1, this->saturationInterval_);
-        // pixel = this->maskPixel(pixel, 2, this->valueInterval_);
     });
-    // image = maskedImage;
     return maskedImage;
 }
 
