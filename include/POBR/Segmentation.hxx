@@ -5,7 +5,7 @@
 namespace POBR {
 
 enum Color { RED, BLUE, WHITE, YELLOW, OTHER };
-enum State { ADDED, CHECKED, NOTVISITED };
+enum State { ADDED, CHECKED, NOTVISITED, MISSED };
 
 typedef std::pair<int, int> PointPosition;
 typedef std::vector<PointPosition> Segment;

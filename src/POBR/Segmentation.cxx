@@ -47,30 +47,58 @@ cv::Mat_<State> SegmentationUnit::createInitialStateMatrix(const cv::Mat& exampl
 
 SegmentList SegmentationUnit::segmentImage(){
     SegmentList segments;
-    colors_.forEach([&segments, this](Color cell, const int position[]){
-        const int y = position[0], x = position[1];
-        if(cell == OTHER){
-            this->states_.at<State>(y,x) = CHECKED;
-            return;
-        }
-        
-        Color seed = cell; std::vector<PointPosition> segmentPixels;
-        std::stack<PointPosition> processList; processList.push(std::make_pair(y, x));
-        while(!processList.empty()){
-            PointPosition pixel = processList.top(); 
-            if(this->colors_.at<Color>(pixel.first, pixel.second) == seed && this->states_.at<State>(pixel.first, pixel.second) == NOTVISITED){
-                this->states_.at<State>(pixel.first, pixel.second) = ADDED;
-                segmentPixels.push_back(std::make_pair(pixel.first, pixel.second));
-                /* dodaj piksele */
-
-            } else {
-                this->states_.at<State>(pixel.first, pixel.second) = CHECKED;
+    for(auto y = 1; y < colors_.rows - 1; ++y){
+        for(auto x = 1; x < colors_.cols - 1; ++x){
+            Color cell = colors_.at<Color>(y, x);
+            if(cell == OTHER){
+                states_.at<State>(y, x) = MISSED;
+                continue;
             }
-            processList.pop();
-        }
 
-        /* dodaj do listy segmentów */
-    });
+            Color seed = cell; Segment newSegment;
+            std::stack<PointPosition> processList; processList.push(std::make_pair(y, x));
+            while(!processList.empty()){
+                PointPosition pixel = processList.top();
+                State& pixelState = states_.at<State>(pixel.first, pixel.second);
+                Color& pixelColor = colors_.at<Color>(pixel.first, pixel.second);
+                if(pixelColor == seed && pixelState != ADDED){
+                    pixelState = ADDED;
+                    newSegment.push_back(pixel);
+                    
+                    // if(x-1 >= 0)
+                        processList.push(std::make_pair(y, x-1));
+
+                    // if(x+1 < colors_.cols)
+                        processList.push(std::make_pair(y, x+1));
+
+                    // if(y-1 >= 0)
+                        processList.push(std::make_pair(y-1, x));
+
+                    // if(y+1 < colors_.rows)
+                        processList.push(std::make_pair(y+1, x));
+
+                    // if(x-1 >=0 && y-1 >= 0)
+                        processList.push(std::make_pair(y-1, x-1));
+
+                    // if(x+1 < colors_.cols && y-1 >= 0)
+                        processList.push(std::make_pair(y-1, x+1));
+
+                    // if(x+1 < colors_.cols && y+1 < colors_.rows)
+                        processList.push(std::make_pair(y+1, x+1));
+
+                    // if(x-1 >= 0 && y+1 < colors_.rows)
+                        processList.push(std::make_pair(y+1, x-1));
+
+                } else {
+                    // pixelState = CHECKED;
+                }
+                processList.pop();
+            }
+
+            segments.push_back(newSegment);
+        }
+    }
+
     return segments;
     /*
         1. stworzyć macierz obrazka typu Mat_<Color> 
