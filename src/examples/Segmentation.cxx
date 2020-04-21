@@ -51,20 +51,16 @@ int main(int argc, char** argv){
     POBR::SegmentationUnit su(red, blue, white, yellow);
     POBR::SegmentList x = su.segmentImage();
 
-    std::cout << "Image size: " << red.rows * red.cols << std::endl;
-
-    std::cout << "Extracted segments: " << x.size() << std::endl;
-
     std::sort(x.begin(), x.end(), [](auto& v1, auto&v2){ 
         return v1.size() > v2.size();
     });
 
-    std::cout << x[0].size() << std::endl;
-
-    for (auto a : x[0]) {
-        std::cout << a.first << " : " << a.second << ", ";
+    for (auto a : x) {
+        std::cout << a.size() << std::endl;
     } 
     std::cout << std::endl;
+    std::cout << "Image size: " << red.rows * red.cols << std::endl;
+    std::cout << "Extracted segments: " << x.size() << std::endl;
 
     cv::imshow("Red", red);
     cv::imshow("Blue", blue);

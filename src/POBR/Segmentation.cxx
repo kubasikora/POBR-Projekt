@@ -50,12 +50,18 @@ SegmentList SegmentationUnit::segmentImage(){
     for(auto y = 1; y < colors_.rows - 1; ++y){
         for(auto x = 1; x < colors_.cols - 1; ++x){
             Color cell = colors_.at<Color>(y, x);
+            State& cellState = states_.at<State>(y, x);
             if(cell == OTHER){
-                states_.at<State>(y, x) = MISSED;
+                cellState = MISSED;
                 continue;
             }
 
+            if(cellState == ADDED)
+                continue;
+
             Color seed = cell; Segment newSegment;
+            std::cout << "Seed: " << y << " : " << x << " = " << seed << std::endl;
+
             std::stack<PointPosition> processList; processList.push(std::make_pair(y, x));
             while(!processList.empty()){
                 PointPosition pixel = processList.top();
@@ -64,33 +70,15 @@ SegmentList SegmentationUnit::segmentImage(){
                 if(pixelColor == seed && pixelState != ADDED){
                     pixelState = ADDED;
                     newSegment.push_back(pixel);
-                    
-                    // if(x-1 >= 0)
-                        processList.push(std::make_pair(y, x-1));
-
-                    // if(x+1 < colors_.cols)
-                        processList.push(std::make_pair(y, x+1));
-
-                    // if(y-1 >= 0)
-                        processList.push(std::make_pair(y-1, x));
-
-                    // if(y+1 < colors_.rows)
-                        processList.push(std::make_pair(y+1, x));
-
-                    // if(x-1 >=0 && y-1 >= 0)
-                        processList.push(std::make_pair(y-1, x-1));
-
-                    // if(x+1 < colors_.cols && y-1 >= 0)
-                        processList.push(std::make_pair(y-1, x+1));
-
-                    // if(x+1 < colors_.cols && y+1 < colors_.rows)
-                        processList.push(std::make_pair(y+1, x+1));
-
-                    // if(x-1 >= 0 && y+1 < colors_.rows)
-                        processList.push(std::make_pair(y+1, x-1));
-
-                } else {
-                    // pixelState = CHECKED;
+                
+                    processList.push(std::make_pair(pixel.first, pixel.second - 1));
+                    processList.push(std::make_pair(pixel.first, pixel.second + 1));
+                    processList.push(std::make_pair(pixel.first - 1, pixel.second));
+                    processList.push(std::make_pair(pixel.first + 1, pixel.second));
+                    processList.push(std::make_pair(pixel.first - 1, pixel.second - 1));
+                    processList.push(std::make_pair(pixel.first - 1, pixel.second + 1));
+                    processList.push(std::make_pair(pixel.first + 1, pixel.second + 1));
+                    processList.push(std::make_pair(pixel.first + 1, pixel.second - 1));
                 }
                 processList.pop();
             }
