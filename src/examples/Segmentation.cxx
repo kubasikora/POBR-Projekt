@@ -55,21 +55,36 @@ int main(int argc, char** argv){
     POBR::SegmentList pointLists = segmentationResult.first; 
     cv::Mat_<POBR::Color> colors = segmentationResult.second;
 
-    std::sort(pointLists.begin(), pointLists.end(), [](auto& v1, auto&v2){ 
-        return v1.size() > v2.size();
-    });
+
 
     std::cout << "Image size: " << red.rows * red.cols << std::endl;
     std::cout << "Extracted segments: " << pointLists.size() << std::endl;
 
-    for (auto x = 0; x < 20; ++x) {
-        POBR::SegmentDescriptor seg(pointLists[x], colors);
-        seg.printDescriptorInfo(std::cout);
-        POBR::BoundingBox bb = seg.getBoundingBox();
+    std::vector<POBR::SegmentDescriptor> descriptors;
+
+    const int cutoffSize = 100;
+    std::for_each(pointLists.begin(), pointLists.end(), [&](auto list){
+        if(list.size() > cutoffSize){
+            POBR::SegmentDescriptor segment(list, colors);
+            descriptors.push_back(segment);
+        }
+    });
+
+    std::sort(descriptors.begin(), descriptors.end(), [](auto& v1, auto& v2){ 
+        return v1.getArea() > v2.getArea();
+    });
+
+    std::cout << "Segments after filtration: " << descriptors.size() << std::endl;
+
+    std::for_each(descriptors.begin(), descriptors.end(), [&](auto& segment){
+        segment.printDescriptorInfo(std::cout);
+        POBR::BoundingBox bb = segment.getBoundingBox();
+        if(bb.width == 0 || bb.height == 0)
+            return;
         cv::Mat roi = ogImage(cv::Rect(bb.x, bb.y, bb.width, bb.height));
-        cv::imshow("seg", roi);
+        cv::imshow("Segment", roi);
         cv::waitKey(-1);
-    }
+    });
 
     return 0;
 }

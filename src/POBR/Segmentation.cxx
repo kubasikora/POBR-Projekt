@@ -6,6 +6,22 @@
 
 namespace POBR {
 
+std::string getColorName(Color c){
+    switch (c){
+      case Color::RED:
+        return "RED";
+      case Color::BLUE:
+        return "BLUE";
+      case Color::WHITE:
+        return "WHITE";
+      case Color::YELLOW:
+        return "YELLOW";
+      default:
+        return "OTHER";    
+    }
+    return "OTHER";
+}
+
 BoundingBox::BoundingBox() :
     y(0), x(0), height(0), width(0) {} 
 
@@ -94,14 +110,19 @@ std::pair<std::vector<PointsList>, cv::Mat_<Color>> SegmentationUnit::segmentIma
 }
 
 
-SegmentDescriptor::SegmentDescriptor(const PointsList points, const cv::Mat_<Color> image) : 
+SegmentDescriptor::SegmentDescriptor(PointsList points, cv::Mat_<Color> image) : 
     points_(points), image_(image) {
-    this->area_ = evaluateArea();
-    this->color_ = findSegmentColor();
     this->boundingBox_ = findBoundingBox();
+    this->area_ = findArea();
+    this->color_ = findSegmentColor();
+    this->whRatio_ = findwhRatio();
     this->cog_ = findCenterOfGravity();
-    this->m11_ = findGeometricMoment(1,1);
 
+    this->m10_ = findRawGeometricMoment(1, 0);
+    this->m00_ = findRawGeometricMoment(0, 0);
+    this->m01_ = findRawGeometricMoment(0, 1);
+
+    this->findFiParameters();
 }
 
 unsigned SegmentDescriptor::getArea(){
@@ -120,21 +141,28 @@ std::pair<double, double> SegmentDescriptor::getCenterOfGravity(){
     return this->cog_;
 }
 
-double SegmentDescriptor::getm11(){
-    return this->m11_;
-}
-
 void SegmentDescriptor::printDescriptorInfo(std::ostream& out){
-    out << "Segment color: " << this->color_ << std::endl;
+    out << "Segment color: " << getColorName(this->color_) << std::endl;
     out << "Segment area: " << this->area_ << std::endl;
     out << "Bounding box: (y: " << this->boundingBox_.y << ", x: " << this->boundingBox_.x << "), height = " << this->boundingBox_.height << ", width = " << this->boundingBox_.width << std::endl;
     out << "Center of gravity: (y: " << this->cog_.first << ", x: " << this->cog_.second << ")" << std::endl;  
-    out << "m11: " << this->m11_ << std::endl;
+    out << "Width to height ratio: " << this->whRatio_ << std::endl;
+
+    out << "fi2: " << this->fi2_ << std::endl;
+    out << "fi3: " << this->fi3_ << std::endl;
+    out << "fi4: " << this->fi4_ << std::endl;
+    out << "fi5: " << this->fi5_ << std::endl;
+    out << "fi6: " << this->fi6_ << std::endl;
+
     out << "===============================" << std::endl;
 }
 
-unsigned SegmentDescriptor::evaluateArea(){
+unsigned SegmentDescriptor::findArea(){
     return this->points_.size();
+}
+
+double SegmentDescriptor::findwhRatio(){
+    return static_cast<double>(this->boundingBox_.width) / this->boundingBox_.height != 0 ? static_cast<double>(this->boundingBox_.height) : 1.0;
 }
 
 Color SegmentDescriptor::findSegmentColor(){
@@ -169,7 +197,7 @@ std::pair<double, double> SegmentDescriptor::findCenterOfGravity(){
     return std::make_pair<double, double>(yAccumulator/points_.size(), xAccumulator/points_.size());
 }
 
-double SegmentDescriptor::findGeometricMoment(const unsigned p, const unsigned q){
+double SegmentDescriptor::findRawGeometricMoment(const unsigned p, const unsigned q){
     double moment = 0.0;
     std::for_each(points_.begin(), points_.end(), [&moment, &p, &q](const PointPosition& point){
         const unsigned i = point.second, j = point.first;
@@ -177,6 +205,40 @@ double SegmentDescriptor::findGeometricMoment(const unsigned p, const unsigned q
     });
 
     return moment;
+}
+
+double SegmentDescriptor::findCentralGeometricMoment(const unsigned p, const unsigned q){
+    double moment = 0.0;
+    const double ym = this->m01_ / this->m00_, xm = this->m10_ / this->m00_; 
+    std::for_each(points_.begin(), points_.end(), [&](const PointPosition& point){
+        const unsigned i = point.second, j = point.first;
+        moment += std::pow(i - xm, p) * std::pow(j - ym, q);
+    });
+
+    return moment;
+}
+
+void SegmentDescriptor::findFiParameters(){
+    double u20 = findCentralGeometricMoment(2,0);
+    double u02 = findCentralGeometricMoment(0,2);
+    double u11 = findCentralGeometricMoment(1,1);
+    double u30 = findCentralGeometricMoment(3,0);
+    double u12 = findCentralGeometricMoment(1,2);
+    double u03 = findCentralGeometricMoment(0,3); 
+    double u21 = findCentralGeometricMoment(2,1);
+    
+    fi2_ = std::pow(u20 - u02, 2) + 4*std::pow(u11, 2);
+    fi3_ = std::pow(u30 - 3*u12, 2) + std::pow(3*u21 - u03, 2);
+    fi4_ = std::pow(u30 + u12, 2) + std::pow(u21 + u03, 2);
+    fi5_ = (u30 - 3*u12)*(u30 + u12)*(std::pow(u30 + u12, 2) - 3*std::pow(u21 + u03, 2)) + (3*u21 - u03)*(u21 + u03)*(3*std::pow(u30 + u12, 2) - std::pow(u21 + u03, 2));
+    fi6_ = (u20 - u02)*(std::pow(u30 + u12, 2) - std::pow(u21 + u03, 2)) + 4*u11*(u30 + u12)*(u21 + u03);
+
+    double r = std::sqrt(u20 + u02);
+    fi2_ = fi2_ / std::pow(r, 4);
+    fi3_ = fi3_ / std::pow(r, 6);
+    fi4_ = fi4_ / std::pow(r, 6);
+    fi5_ = fi5_ / std::pow(r, 12);
+    fi6_ = fi6_ / std::pow(r, 8);
 }
 
 };

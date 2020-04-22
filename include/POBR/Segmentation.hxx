@@ -7,6 +7,8 @@ namespace POBR {
 enum Color { RED, BLUE, WHITE, YELLOW, OTHER };
 enum State { ADDED, CHECKED, NOTVISITED, MISSED };
 
+std::string getColorName(Color c);
+
 typedef std::pair<int, int> PointPosition;
 typedef std::vector<PointPosition> PointsList;
 typedef std::vector<PointsList> SegmentList;
@@ -32,30 +34,44 @@ class SegmentationUnit {
 
 class SegmentDescriptor {
   public:
-    SegmentDescriptor(const PointsList points, const cv::Mat_<Color> image);
+    SegmentDescriptor(PointsList points, cv::Mat_<Color> image);
     void printDescriptorInfo(std::ostream& out);
 
     unsigned getArea();
     Color getColor();
     BoundingBox getBoundingBox();
     std::pair<double, double> getCenterOfGravity();
-    double getm11();
+    double getwhRatio();
+
+    double getfi1();
+    double getfi2();
+    double getfi3();
+    double getfi4();
+    double getfi5();
+    double getfi6();
+    double getfi7();
 
   private:
-    const PointsList points_;
-    const cv::Mat_<Color> image_;
+    PointsList points_;
+    cv::Mat_<Color> image_;
     
+    double fi2_, fi3_, fi4_, fi5_, fi6_; 
+    double m00_, m01_, m10_;
+    double whRatio_;
     unsigned area_;
     Color color_;
     BoundingBox boundingBox_;
     std::pair<double, double> cog_;
-    double m11_;
     
-    unsigned evaluateArea();
+    unsigned findArea();
+    double findwhRatio();
     Color findSegmentColor();
     BoundingBox findBoundingBox();
     std::pair<double, double> findCenterOfGravity();
-    double findGeometricMoment(const unsigned p, const unsigned q);
+    double findRawGeometricMoment(const unsigned p, const unsigned q);
+    double findCentralGeometricMoment(const unsigned p, const unsigned q);
+
+    void findFiParameters();
 };
 
 };
