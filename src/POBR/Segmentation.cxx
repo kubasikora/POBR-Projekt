@@ -6,6 +6,9 @@
 
 namespace POBR {
 
+BoundingBox::BoundingBox() :
+    y(0), x(0), height(0), width(0) {} 
+
 BoundingBox::BoundingBox(const int y, const int x, const int height, const int width) :
     y(y), x(x), height(height), width(width) {}
 
@@ -73,7 +76,11 @@ std::pair<std::vector<PointsList>, cv::Mat_<Color>> SegmentationUnit::segmentIma
                         for(auto yOffset = -1; yOffset <= 1; ++yOffset){
                             if(xOffset == 0 && yOffset == 0)
                                 continue;
-                            processList.push(std::make_pair(pixel.first + xOffset, pixel.second + yOffset));             
+                            const int pixelX = pixel.second + xOffset, pixelY = pixel.first + yOffset;
+                            if(pixelX < 0 || pixelY < 0 || pixelX >= colors_.cols || pixelY >= colors_.rows)
+                                continue;
+
+                            processList.push(std::make_pair(pixel.first + yOffset, pixel.second + xOffset));             
                         }
                     } 
                 }
@@ -88,12 +95,34 @@ std::pair<std::vector<PointsList>, cv::Mat_<Color>> SegmentationUnit::segmentIma
 
 
 SegmentDescriptor::SegmentDescriptor(const PointsList points, const cv::Mat_<Color> image) : 
-    points_(points), 
-    area_(evaluateArea(points)), 
-    color_(findSegmentColor(points, image)),
-    boundingBox_(findBoundingBox(points)),
-    cog_(findCenterOfGravity(points)),
-    m11_(findGeometricMoment(points, 1, 1)) {}
+    points_(points), image_(image) {
+    this->area_ = evaluateArea();
+    this->color_ = findSegmentColor();
+    this->boundingBox_ = findBoundingBox();
+    this->cog_ = findCenterOfGravity();
+    this->m11_ = findGeometricMoment(1,1);
+
+}
+
+unsigned SegmentDescriptor::getArea(){
+    return this->area_;
+}
+
+Color SegmentDescriptor::getColor(){
+    return this->color_;
+}
+
+BoundingBox SegmentDescriptor::getBoundingBox(){
+    return this->boundingBox_;
+}
+
+std::pair<double, double> SegmentDescriptor::getCenterOfGravity(){
+    return this->cog_;
+}
+
+double SegmentDescriptor::getm11(){
+    return this->m11_;
+}
 
 void SegmentDescriptor::printDescriptorInfo(std::ostream& out){
     out << "Segment color: " << this->color_ << std::endl;
@@ -104,22 +133,22 @@ void SegmentDescriptor::printDescriptorInfo(std::ostream& out){
     out << "===============================" << std::endl;
 }
 
-double SegmentDescriptor::evaluateArea(const PointsList points){
-    return points.size();
+unsigned SegmentDescriptor::evaluateArea(){
+    return this->points_.size();
 }
 
-Color SegmentDescriptor::findSegmentColor(const PointsList points, const cv::Mat_<Color> image){
-    const PointPosition head = points.front();
-    return image.at<Color>(head.first, head.second);
+Color SegmentDescriptor::findSegmentColor(){
+    const PointPosition head = points_.front();
+    return image_.at<Color>(head.first, head.second);
 }
 
-BoundingBox SegmentDescriptor::findBoundingBox(const PointsList points) {
+BoundingBox SegmentDescriptor::findBoundingBox() {
     int minY, maxY, minX, maxX;
-    PointPosition head = points.front();
+    PointPosition head = points_.front();
     minY = head.first; maxY = head.first;
     minX = head.second; maxX = head.second;
 
-    std::for_each(points.begin(), points.end(), [&](const PointPosition& point){
+    std::for_each(points_.begin(), points_.end(), [&](const PointPosition& point){
         const int y = point.first, x = point.second;
         if(y > maxY) maxY = y;
         if(y < minY) minY = y;
@@ -127,24 +156,22 @@ BoundingBox SegmentDescriptor::findBoundingBox(const PointsList points) {
         if(x < minX) minX = x;
     });
 
-    std::cout << minY << " : " << maxY << " / " << minX << " : " << maxX << std::endl; 
-
     return BoundingBox(minY, minX, maxY - minY, maxX - minX);
 }
 
-std::pair<double, double> SegmentDescriptor::findCenterOfGravity(const PointsList points){
+std::pair<double, double> SegmentDescriptor::findCenterOfGravity(){
     int xAccumulator = 0, yAccumulator = 0;
-    std::for_each(points.begin(), points.end(), [&](const PointPosition& point){
+    std::for_each(points_.begin(), points_.end(), [&](const PointPosition& point){
         yAccumulator += point.first;
         xAccumulator += point.second;
     });
 
-    return std::make_pair<double, double>(yAccumulator/points.size(), xAccumulator/points.size());
+    return std::make_pair<double, double>(yAccumulator/points_.size(), xAccumulator/points_.size());
 }
 
-double SegmentDescriptor::findGeometricMoment(const PointsList points, const unsigned p, const unsigned q){
+double SegmentDescriptor::findGeometricMoment(const unsigned p, const unsigned q){
     double moment = 0.0;
-    std::for_each(points.begin(), points.end(), [&moment, &p, &q](const PointPosition& point){
+    std::for_each(points_.begin(), points_.end(), [&moment, &p, &q](const PointPosition& point){
         const unsigned i = point.second, j = point.first;
         moment += std::pow(i, p) * std::pow(j, q);
     });

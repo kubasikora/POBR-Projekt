@@ -11,10 +11,10 @@ typedef std::pair<int, int> PointPosition;
 typedef std::vector<PointPosition> PointsList;
 typedef std::vector<PointsList> SegmentList;
 
-class BoundingBox {
-  public:
+struct BoundingBox {
+    BoundingBox();
     BoundingBox(const int y, const int x, const int height, const int width);
-    const int y, x, height, width;
+    int y, x, height, width;
 };
 
 class SegmentationUnit {
@@ -35,19 +35,27 @@ class SegmentDescriptor {
     SegmentDescriptor(const PointsList points, const cv::Mat_<Color> image);
     void printDescriptorInfo(std::ostream& out);
 
-    const PointsList points_;
-    const double area_;
-    const Color color_;
-    const BoundingBox boundingBox_;
-    const std::pair<double, double> cog_;
-    const double m11_;
+    unsigned getArea();
+    Color getColor();
+    BoundingBox getBoundingBox();
+    std::pair<double, double> getCenterOfGravity();
+    double getm11();
 
   private:
-    static double evaluateArea(const PointsList points);
-    static Color findSegmentColor(const PointsList points, const cv::Mat_<Color> image);
-    static BoundingBox findBoundingBox(const PointsList points);
-    static std::pair<double, double> findCenterOfGravity(const PointsList points);
-    static double findGeometricMoment(const PointsList points, const unsigned p, const unsigned q);
+    const PointsList points_;
+    const cv::Mat_<Color> image_;
+    
+    unsigned area_;
+    Color color_;
+    BoundingBox boundingBox_;
+    std::pair<double, double> cog_;
+    double m11_;
+    
+    unsigned evaluateArea();
+    Color findSegmentColor();
+    BoundingBox findBoundingBox();
+    std::pair<double, double> findCenterOfGravity();
+    double findGeometricMoment(const unsigned p, const unsigned q);
 };
 
 };

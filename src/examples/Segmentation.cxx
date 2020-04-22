@@ -23,6 +23,8 @@ int main(int argc, char** argv){
     POBR::BicubicInterpolationResizer bcr(1000, 1000);
     image = bcr.resize(image);
 
+    cv::Mat ogImage = image.clone();
+
     POBR::GaussianFilter gf(5, 1.0);
     image = gf.filter(image);
     cv::Mat highPassKernel = (cv::Mat_<double>(5,5) << 0, 0, 0, 0, 0, 
@@ -57,22 +59,17 @@ int main(int argc, char** argv){
         return v1.size() > v2.size();
     });
 
-    std::cout << "Biggest 10 segments: " << std::endl;
-    for (auto x = 0; x < 10; ++x) {
-        POBR::SegmentDescriptor descr(pointLists[x], colors);
-        descr.printDescriptorInfo(std::cout);
-    } 
-    std::cout << std::endl;
     std::cout << "Image size: " << red.rows * red.cols << std::endl;
     std::cout << "Extracted segments: " << pointLists.size() << std::endl;
 
-    for (auto x = 0; x < 10; ++x) {
+    for (auto x = 0; x < 20; ++x) {
         POBR::SegmentDescriptor seg(pointLists[x], colors);
         seg.printDescriptorInfo(std::cout);
-        cv::Mat roi = image(cv::Rect(seg.boundingBox_.x, seg.boundingBox_.y, seg.boundingBox_.width, seg.boundingBox_.height));
+        POBR::BoundingBox bb = seg.getBoundingBox();
+        cv::Mat roi = ogImage(cv::Rect(bb.x, bb.y, bb.width, bb.height));
         cv::imshow("seg", roi);
         cv::waitKey(-1);
     }
-    
+
     return 0;
 }
