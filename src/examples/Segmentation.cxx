@@ -49,24 +49,30 @@ int main(int argc, char** argv){
     cv::Mat yellow = yellowMask.apply(image);
 
     POBR::SegmentationUnit su(red, blue, white, yellow);
-    POBR::SegmentList x = su.segmentImage();
+    auto segmentationResult = su.segmentImage();
+    POBR::SegmentList pointLists = segmentationResult.first; 
+    cv::Mat_<POBR::Color> colors = segmentationResult.second;
 
-    std::sort(x.begin(), x.end(), [](auto& v1, auto&v2){ 
+    std::sort(pointLists.begin(), pointLists.end(), [](auto& v1, auto&v2){ 
         return v1.size() > v2.size();
     });
 
-    for (auto a : x) {
-        std::cout << a.size() << std::endl;
+    std::cout << "Biggest 10 segments: " << std::endl;
+    for (auto x = 0; x < 10; ++x) {
+        POBR::SegmentDescriptor descr(pointLists[x], colors);
+        descr.printDescriptorInfo(std::cout);
     } 
     std::cout << std::endl;
     std::cout << "Image size: " << red.rows * red.cols << std::endl;
-    std::cout << "Extracted segments: " << x.size() << std::endl;
+    std::cout << "Extracted segments: " << pointLists.size() << std::endl;
 
-    cv::imshow("Red", red);
-    cv::imshow("Blue", blue);
-    cv::imshow("White", white);
-    cv::imshow("Yellow", yellow);
-    cv::waitKey(-1);
-
+    for (auto x = 0; x < 10; ++x) {
+        POBR::SegmentDescriptor seg(pointLists[x], colors);
+        seg.printDescriptorInfo(std::cout);
+        cv::Mat roi = image(cv::Rect(seg.boundingBox_.x, seg.boundingBox_.y, seg.boundingBox_.width, seg.boundingBox_.height));
+        cv::imshow("seg", roi);
+        cv::waitKey(-1);
+    }
+    
     return 0;
 }
