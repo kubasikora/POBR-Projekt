@@ -21,12 +21,12 @@ int main(int argc, char** argv){
 	    return -1;
     };
 
-    POBR::BicubicInterpolationResizer bcr(1000, 1000);
+    POBR::BicubicInterpolationResizer bcr(1200, 900);
     image = bcr.resize(image);
 
     cv::Mat ogImage = image.clone();
 
-    POBR::GaussianFilter gf(5, 1.0);
+    POBR::GaussianFilter gf(5, 3.0);
     image = gf.filter(image);
     cv::Mat highPassKernel = (cv::Mat_<double>(5,5) << 0, 0, 0, 0, 0, 
                                                       0, -0.5, -0.5, -0.5, 0,
@@ -39,19 +39,39 @@ int main(int argc, char** argv){
     POBR::BGR2HSVConverter converter;
     converter.convert(image);
 
-    POBR::HSVMask redMask(POBR::HueInterval(-20, 20), POBR::SaturationInterval(180, 255), POBR::ValueInterval(100, 255));
+    POBR::HistogramEqualizer he;
+    image = he.equalize(image);
+
+    POBR::HSVMask redMask(POBR::HueInterval(-20, 20), POBR::SaturationInterval(150, 255), POBR::ValueInterval(100, 255));
     cv::Mat red = redMask.apply(image);
-    POBR::DilationFilter d(3);
+    POBR::DilationFilter d(3), dp(5), dd(7);
+    POBR::ErosionFilter e(3), ep(5);
     red = d.filter(red);
 
-    POBR::HSVMask blueMask(POBR::HueInterval(220, 260), POBR::SaturationInterval(100, 255), POBR::ValueInterval(0, 255));
-    cv::Mat blue = blueMask.apply(image);
+    cv::imwrite("../data/result/red.jpg", red);
+    // cv::waitKey(-1);
 
-    POBR::HSVMask whiteMask(POBR::HueInterval(0, 360), POBR::SaturationInterval(0, 40), POBR::ValueInterval(100, 255));
+    POBR::HSVMask blueMask(POBR::HueInterval(220, 300), POBR::SaturationInterval(70, 255), POBR::ValueInterval(0, 255));
+    cv::Mat blue = blueMask.apply(image);
+    // blue = dd.filter(blue);
+    
+
+    cv::imwrite("../data/result/blue.jpg", blue);
+    // cv::waitKey(-1);
+
+    POBR::HSVMask whiteMask(POBR::HueInterval(0, 360), POBR::SaturationInterval(0, 75), POBR::ValueInterval(100, 255));
     cv::Mat white = whiteMask.apply(image);
 
-    POBR::HSVMask yellowMask(POBR::HueInterval(20, 60), POBR::SaturationInterval(70, 255), POBR::ValueInterval(150, 255));
+    cv::imwrite("../data/result/white.jpg", white);
+    // cv::waitKey(-1);
+
+    POBR::HSVMask yellowMask(POBR::HueInterval(20, 60), POBR::SaturationInterval(80, 255), POBR::ValueInterval(150, 255));
     cv::Mat yellow = yellowMask.apply(image);
+    yellow = dp.filter(yellow);
+    yellow = e.filter(yellow);
+
+    cv::imwrite("../data/result/yellow.jpg", yellow);
+    // cv::waitKey(-1);
 
     std::vector<std::pair<POBR::Color, cv::Mat>> images;
     images.push_back(std::make_pair(POBR::Color::RED, red));
@@ -82,7 +102,7 @@ int main(int argc, char** argv){
         bins[segment.getColor()].push_back(segment);
     });
 
-    const std::array<double, 5> whiteModel = {0.0396491, 4.09819e-08, 6.95962e-09, 6.7482e-17, -6.00043e-11};
+    const std::array<double, 5> whiteModel = { 0.009737395, 2.18181e-7, 1.48058e-7, 4.23793e-15, 8.50314e-10 };
     std::for_each(bins[POBR::Color::WHITE].begin(), bins[POBR::Color::WHITE].end(), [&](auto& segment){
         segment.printDescriptorInfo(std::cout);
 
@@ -114,7 +134,7 @@ int main(int argc, char** argv){
         cv::waitKey(-1);
     });
 
-    const std::array<double, 5> blueModel = {0.258913, 1.36728e-05, 8.18383e-06, 4.30038e-11, -1.33892e-06};
+    const std::array<double, 5> blueModel = {0.5879375, 0.000248822, 5.08791e-5, 5.762582e-10, -1.1759715e-5};
     std::for_each(bins[POBR::Color::BLUE].begin(), bins[POBR::Color::BLUE].end(), [&](auto& segment){
         segment.printDescriptorInfo(std::cout);
     
@@ -132,8 +152,8 @@ int main(int argc, char** argv){
         cv::waitKey(-1);
     });
 
-    const std::array<double, 5> lowerBunModel = {0.732495, 6.62663e-06, 6.10897e-07, -1.22082e-12, -5.22665e-07};
-    const std::array<double, 5> upperBunModel = {0.755384, 1.2037e-05, 1.17917e-06, -4.40856e-12, -1.01425e-06};
+    const std::array<double, 5> lowerBunModel = {0.666357, 3.059285e-5, 2.84446e-6, -3.87055e-12, -6.78627e-7};
+    const std::array<double, 5> upperBunModel = {0.6692, 5.03532e-5, 4.84897e-6, -2.43564e-11, -2.41654e-6};
     std::for_each(bins[POBR::Color::YELLOW].begin(), bins[POBR::Color::YELLOW].end(), [&](auto& segment){
         segment.printDescriptorInfo(std::cout);
 
