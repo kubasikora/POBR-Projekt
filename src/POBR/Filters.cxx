@@ -47,7 +47,7 @@ MedianFilter::MedianFilter(const int windowSize) :
 
 cv::Mat MedianFilter::filter(cv::Mat& image){
     const int imageHeight = image.rows, imageWidth = image.cols;
-    cv::Mat filteredImage(imageWidth, imageHeight, image.type()); // size(width, height)
+    cv::Mat filteredImage = image.clone();
 
     filteredImage.forEach<cv::Vec3b>([&](cv::Vec3b& pixel, const int position[]){
         const int y = position[0], x = position[1];
@@ -76,7 +76,7 @@ ErosionFilter::ErosionFilter(const int windowSize) :
 
 cv::Mat ErosionFilter::filter(cv::Mat& image){
     const int imageHeight = image.rows, imageWidth = image.cols;
-    cv::Mat filteredImage(image.size(), image.type());
+    cv::Mat filteredImage = image.clone();
 
     if(image.type() == CV_8U){
         filteredImage.forEach<uchar>([&](uchar& pixel, const int position[]){
@@ -89,6 +89,7 @@ cv::Mat ErosionFilter::filter(cv::Mat& image){
             for(auto i = -offset_; i <= offset_; ++i){
                 for(auto j = -offset_; j <= offset_; ++j){
                     const uchar pixelTemporary = image.at<uchar>(y-j, x-i);
+                    // std::cout << pixelTemporary << std::endl;
                     pixel = std::min(pixelTemporary, pixel);
                 }
             }
@@ -121,10 +122,9 @@ DilationFilter::DilationFilter(const int windowSize) :
 
 cv::Mat DilationFilter::filter(cv::Mat& image){
     const int imageHeight = image.rows, imageWidth = image.cols;
-    cv::Mat filteredImage(image.size(), image.type()); // size(width, height)
+    cv::Mat filteredImage = image.clone();
 
     if(image.type() == CV_8U){
-        std::cout << "lel" << std::endl;
         filteredImage.forEach<uchar>([&](uchar& pixel, const int position[]){
             const int y = position[0], x = position[1];
             if(x < offset_ || y < offset_ || x >= imageWidth - offset_ || y >= imageHeight - offset_){
