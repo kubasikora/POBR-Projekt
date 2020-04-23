@@ -292,4 +292,14 @@ double SegmentDescriptor::getFiNorm(const SegmentDescriptor& s1, const std::arra
     return std::sqrt(fi2Diff + fi3Diff + fi4Diff + fi5Diff + fi6Diff);
 }
 
+SegmentDescriptor SegmentDescriptor::operator+(SegmentDescriptor& b){
+    PointsList accumulatedPoints;
+    std::copy(this->points_.begin(), this->points_.end(), std::back_inserter(accumulatedPoints));   
+    std::copy(b.points_.begin(), b.points_.end(), std::back_inserter(accumulatedPoints)); 
+
+    std::sort(accumulatedPoints.begin(), accumulatedPoints.end());
+    accumulatedPoints.erase(std::unique(accumulatedPoints.begin(), accumulatedPoints.end()), accumulatedPoints.end() );
+    return SegmentDescriptor(accumulatedPoints, this->image_);
+}
+
 };

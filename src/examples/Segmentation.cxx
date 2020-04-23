@@ -127,8 +127,6 @@ int main(int argc, char** argv){
         };
     });
 
-    
-
     std::for_each(bins[POBR::Color::WHITE].begin(), bins[POBR::Color::WHITE].end(), [&](auto& segment){
         segment.printDescriptorInfo(std::cout);
         POBR::BoundingBox bb = segment.getBoundingBox();
@@ -184,6 +182,6 @@ int main(int argc, char** argv){
         cv::imshow("Picture", rois);
         cv::waitKey(-1);
     });
-
+    
     return 0;
 }
