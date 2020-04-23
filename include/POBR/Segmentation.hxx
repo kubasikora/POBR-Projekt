@@ -1,3 +1,6 @@
+#ifndef __POBR_SEGMENTATION_HXX__
+#define __POBR_SEGMENTATION_HXX__
+
 #include<opencv2/opencv.hpp>
 #include<iostream>
 #include<fstream>
@@ -76,3 +79,4 @@ class SegmentationUnit {
 
 };
 
+#endif // __POBR_SEGMENTATION_HXX__

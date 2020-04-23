@@ -3,6 +3,7 @@
 #include"POBR/Masks.hxx"
 #include"POBR/Filters.hxx"
 #include"POBR/Preprocessing.hxx"
+#include"POBR/Identification.hxx"
 #include<stack>
 #include<iostream>
 #include<fstream>
@@ -40,14 +41,8 @@ int main(int argc, char** argv){
 
     POBR::HSVMask redMask(POBR::HueInterval(-20, 20), POBR::SaturationInterval(180, 255), POBR::ValueInterval(100, 255));
     cv::Mat red = redMask.apply(image);
-    cv::imshow("Red", red);
-    cv::waitKey(-1);
-
     POBR::DilationFilter d(3);
     red = d.filter(red);
-
-    cv::imshow("Red", red);
-    cv::waitKey(-1);
 
     POBR::HSVMask blueMask(POBR::HueInterval(220, 260), POBR::SaturationInterval(100, 255), POBR::ValueInterval(0, 255));
     cv::Mat blue = blueMask.apply(image);
@@ -96,8 +91,12 @@ int main(int argc, char** argv){
         POBR::BoundingBox bb = segment.getBoundingBox();
         if(bb.width == 0 || bb.height == 0)
             return;
+        
         cv::Mat roi = ogImage(cv::Rect(bb.x, bb.y, bb.width, bb.height));
         cv::imshow("White segment", roi);
+        
+        cv::Mat rois = POBR::drawSegmentBoundary(ogImage, bb);
+        cv::imshow("Picture", rois);
         cv::waitKey(-1);
     });
 
@@ -106,8 +105,12 @@ int main(int argc, char** argv){
         POBR::BoundingBox bb = segment.getBoundingBox();
         if(bb.width == 0 || bb.height == 0)
             return;
+
         cv::Mat roi = ogImage(cv::Rect(bb.x, bb.y, bb.width, bb.height));
         cv::imshow("Red segment", roi);
+        
+        cv::Mat rois = POBR::drawSegmentBoundary(ogImage, bb);
+        cv::imshow("Picture", rois);
         cv::waitKey(-1);
     });
 
@@ -120,8 +123,12 @@ int main(int argc, char** argv){
         POBR::BoundingBox bb = segment.getBoundingBox();
         if(bb.width == 0 || bb.height == 0)
             return;
+                
         cv::Mat roi = ogImage(cv::Rect(bb.x, bb.y, bb.width, bb.height));
         cv::imshow("Blue segment", roi);
+        
+        cv::Mat rois = POBR::drawSegmentBoundary(ogImage, bb);
+        cv::imshow("Picture", rois);
         cv::waitKey(-1);
     });
 
@@ -137,8 +144,12 @@ int main(int argc, char** argv){
         POBR::BoundingBox bb = segment.getBoundingBox();
         if(bb.width == 0 || bb.height == 0)
             return;
+        
         cv::Mat roi = ogImage(cv::Rect(bb.x, bb.y, bb.width, bb.height));
         cv::imshow("Yellow segment", roi);
+        
+        cv::Mat rois = POBR::drawSegmentBoundary(ogImage, bb);
+        cv::imshow("Picture", rois);
         cv::waitKey(-1);
     });
 

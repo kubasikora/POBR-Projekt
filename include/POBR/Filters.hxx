@@ -1,3 +1,6 @@
+#ifndef __POBR_FILTERS_HXX__
+#define __POBR_FILTERS_HXX__
+
 #include<opencv2/opencv.hpp>
 #include<algorithm>
 #include<array>
@@ -65,3 +68,5 @@ class GaussianFilter : public ConvolutionalFilter {
 class InvalidWindowSizeException : public std::exception {};
 
 }
+
+#endif //__POBR_FILTERS_HXX__

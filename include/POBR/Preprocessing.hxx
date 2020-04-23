@@ -1,3 +1,6 @@
+#ifndef __POBR_PREPROCESSING_HXX__
+#define __POBR_PREPROCESSING_HXX__
+
 #include<array>
 #include<opencv2/opencv.hpp>
 
@@ -114,3 +117,5 @@ class BicubicInterpolationResizer : ImageResizer {
 };
 
 };
+
+#endif // __POBR_PREPROCESSING_HXX__

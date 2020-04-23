@@ -1,3 +1,6 @@
+#ifndef __POBR_MASKS_HXX__
+#define __POBR_MASKS_HXX__
+
 #include<opencv2/opencv.hpp>
 
 namespace POBR {
@@ -65,3 +68,5 @@ class MaskFactory {
 };
 
 };
+
+#endif // __POBR_MASKS_HXX__
