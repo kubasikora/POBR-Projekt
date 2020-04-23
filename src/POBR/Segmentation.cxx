@@ -164,6 +164,10 @@ BoundingBox SegmentDescriptor::getBoundingBox(){
     return this->boundingBox_;
 }
 
+double SegmentDescriptor::getwhRatio(){
+    return this->whRatio_;
+}
+
 std::pair<double, double> SegmentDescriptor::getCenterOfGravity(){
     return this->cog_;
 }

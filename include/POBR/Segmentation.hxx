@@ -40,7 +40,7 @@ class SegmentDescriptor {
 
     static double getFiNorm(const SegmentDescriptor& s1, const SegmentDescriptor& s2);
     static double getFiNorm(const SegmentDescriptor& s1, const std::array<double, 5> s2);
-
+    
   private:
     PointsList points_;
     cv::Mat_<Color> image_;
