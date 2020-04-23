@@ -28,35 +28,37 @@ BoundingBox::BoundingBox() :
 BoundingBox::BoundingBox(const int y, const int x, const int height, const int width) :
     y(y), x(x), height(height), width(width) {}
 
-SegmentationUnit::SegmentationUnit(cv::Mat& red, cv::Mat& blue, cv::Mat& white, cv::Mat& yellow) : 
-    colors_(mergeColorMatrices(red, blue, white, yellow)),
-    states_(createInitialStateMatrix(red)) {}
+cv::Mat_<Color> ImageMerger::mergeImage(std::vector<std::pair<Color, cv::Mat>> images) {
+    if(images.size() == 0)
+        return cv::Mat_<Color>();
+    
+    std::pair<Color, cv::Mat> head = images.front();
+    const unsigned imageHeight = head.second.rows, imageWidth = head.second.cols;
 
-
-cv::Mat_<Color> SegmentationUnit::mergeColorMatrices(const cv::Mat& red, const cv::Mat& blue, const cv::Mat& white, const cv::Mat& yellow){
-    const int imageHeight = red.rows, imageWidth = red.cols;
-    cv::Mat_<Color> colors(cv::Size(imageWidth, imageHeight)); 
-    colors.forEach([](Color& pixel, const int[]) -> void {
+    cv::Mat_<Color> merged(cv::Size(imageWidth, imageHeight));
+    merged.forEach([](Color& pixel, const int[]){
         pixel = OTHER;
     });
 
-    auto merger = [&colors](Color baseColor){
-        return [&colors, baseColor](auto& pixel, const int position[]) -> void {
+    auto mergerFunction = [&merged](Color baseColor){
+        return [&merged, baseColor](auto& pixel, const int position[]){
             if(pixel == 0)
                 return;
-
+            
             const int y = position[0], x = position[1];
-            colors.at<Color>(y, x) = baseColor;  
+            merged.at<Color>(y, x) = baseColor;
         };
     };
 
-    red.forEach<uchar>(merger(RED));
-    blue.forEach<uchar>(merger(BLUE));
-    white.forEach<uchar>(merger(WHITE));
-    yellow.forEach<uchar>(merger(YELLOW));
+    std::for_each(images.begin(), images.end(), [&](std::pair<Color, cv::Mat>& tpl){
+        Color imageColor = tpl.first; cv::Mat filteredImage = tpl.second;
+        filteredImage.forEach<uchar>(mergerFunction(imageColor));
+    });
 
-    return colors;
+    return merged;
 }
+
+SegmentationUnit::SegmentationUnit(unsigned cutoffSize) : cutoffSize_(cutoffSize) {}
 
 cv::Mat_<State> SegmentationUnit::createInitialStateMatrix(const cv::Mat& exampleImage){
     const int imageHeight = exampleImage.rows, imageWidth = exampleImage.cols;
@@ -67,11 +69,29 @@ cv::Mat_<State> SegmentationUnit::createInitialStateMatrix(const cv::Mat& exampl
     return states;
 }
 
-std::pair<std::vector<PointsList>, cv::Mat_<Color>> SegmentationUnit::segmentImage(){
+std::vector<PointsList> SegmentationUnit::filterSegmentsBySize(std::vector<PointsList> pointLists){
+    std::vector<PointsList> filteredLists;
+    std::for_each(pointLists.begin(), pointLists.end(), [&](auto list){
+        if(list.size() > cutoffSize_)
+            filteredLists.push_back(list);
+    });
+    return filteredLists;
+}
+
+std::vector<SegmentDescriptor> SegmentationUnit::mapToDescriptors(std::vector<PointsList> pointLists, cv::Mat_<Color> colors){
+    std::vector<SegmentDescriptor> descriptors;
+    std::for_each(pointLists.begin(), pointLists.end(), [&](auto list){
+            POBR::SegmentDescriptor segment(list, colors);
+            descriptors.push_back(segment);
+    });
+    return descriptors;
+}
+
+std::vector<PointsList> SegmentationUnit::makeInitialSegmentation(cv::Mat_<Color> colors, cv::Mat_<State> states){
     std::vector<PointsList>  segments;
-    for(auto y = 1; y < colors_.rows - 1; ++y){
-        for(auto x = 1; x < colors_.cols - 1; ++x){
-            Color cell = colors_.at<Color>(y, x); State& cellState = states_.at<State>(y, x);
+    for(auto y = 1; y < colors.rows - 1; ++y){
+        for(auto x = 1; x < colors.cols - 1; ++x){
+            Color cell = colors.at<Color>(y, x); State& cellState = states.at<State>(y, x);
             if(cell == OTHER){
                 cellState = MISSED;
                 continue;
@@ -84,16 +104,17 @@ std::pair<std::vector<PointsList>, cv::Mat_<Color>> SegmentationUnit::segmentIma
             std::stack<PointPosition> processList; processList.push(std::make_pair(y, x));
             while(!processList.empty()){
                 PointPosition pixel = processList.top();
-                State& pixelState = states_.at<State>(pixel.first, pixel.second); 
-                Color& pixelColor = colors_.at<Color>(pixel.first, pixel.second);
+                State& pixelState = states.at<State>(pixel.first, pixel.second); 
+                Color& pixelColor = colors.at<Color>(pixel.first, pixel.second);
                 if(pixelColor == seed && pixelState != ADDED){
                     pixelState = ADDED; newSegment.push_back(pixel);
                     for(auto xOffset = -1; xOffset <= 1; ++xOffset){
                         for(auto yOffset = -1; yOffset <= 1; ++yOffset){
                             if(xOffset == 0 && yOffset == 0)
                                 continue;
+
                             const int pixelX = pixel.second + xOffset, pixelY = pixel.first + yOffset;
-                            if(pixelX < 0 || pixelY < 0 || pixelX >= colors_.cols || pixelY >= colors_.rows)
+                            if(pixelX < 0 || pixelY < 0 || pixelX >= colors.cols || pixelY >= colors.rows)
                                 continue;
 
                             processList.push(std::make_pair(pixel.first + yOffset, pixel.second + xOffset));             
@@ -102,11 +123,17 @@ std::pair<std::vector<PointsList>, cv::Mat_<Color>> SegmentationUnit::segmentIma
                 }
                 processList.pop();
             }
-
             segments.push_back(newSegment);
         }
     }
-    return std::make_pair(segments, colors_);
+    return segments;
+}
+
+std::vector<SegmentDescriptor> SegmentationUnit::segmentImage(cv::Mat_<Color> colors){
+    cv::Mat_<State> states = this->createInitialStateMatrix(colors);
+    std::vector<PointsList> initialSegments = this->makeInitialSegmentation(colors, states);
+    std::vector<PointsList> filteredSegments = this->filterSegmentsBySize(initialSegments);
+    return this->mapToDescriptors(filteredSegments, colors);
 }
 
 

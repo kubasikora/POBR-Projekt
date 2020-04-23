@@ -50,31 +50,23 @@ int main(int argc, char** argv){
     POBR::HSVMask yellowMask(POBR::HueInterval(20, 60), POBR::SaturationInterval(70, 255), POBR::ValueInterval(150, 255));
     cv::Mat yellow = yellowMask.apply(image);
 
-    POBR::SegmentationUnit su(red, blue, white, yellow);
-    auto segmentationResult = su.segmentImage();
-    POBR::SegmentList pointLists = segmentationResult.first; 
-    cv::Mat_<POBR::Color> colors = segmentationResult.second;
+    std::vector<std::pair<POBR::Color, cv::Mat>> images;
+    images.push_back(std::make_pair(POBR::Color::RED, red));
+    images.push_back(std::make_pair(POBR::Color::BLUE, blue));
+    images.push_back(std::make_pair(POBR::Color::WHITE, white));
+    images.push_back(std::make_pair(POBR::Color::YELLOW, yellow));
 
+    POBR::ImageMerger im;
+    auto maskedImage = im.mergeImage(images);
 
+    POBR::SegmentationUnit su(100);
+    auto descriptors = su.segmentImage(maskedImage);
 
-    std::cout << "Image size: " << red.rows * red.cols << std::endl;
-    std::cout << "Extracted segments: " << pointLists.size() << std::endl;
+    std::cout << "Extracted segments: " << descriptors.size() << std::endl;
 
-    std::vector<POBR::SegmentDescriptor> descriptors;
-
-    const int cutoffSize = 100;
-    std::for_each(pointLists.begin(), pointLists.end(), [&](auto list){
-        if(list.size() > cutoffSize){
-            POBR::SegmentDescriptor segment(list, colors);
-            descriptors.push_back(segment);
-        }
-    });
-
-    std::sort(descriptors.begin(), descriptors.end(), [](auto& v1, auto& v2){ 
+    std::sort(descriptors.begin(), descriptors.end(), [](auto& v1, auto& v2){
         return v1.getArea() > v2.getArea();
     });
-
-    std::cout << "Segments after filtration: " << descriptors.size() << std::endl;
 
     std::for_each(descriptors.begin(), descriptors.end(), [&](auto& segment){
         segment.printDescriptorInfo(std::cout);

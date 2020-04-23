@@ -19,17 +19,9 @@ struct BoundingBox {
     int y, x, height, width;
 };
 
-class SegmentationUnit {
+class ImageMerger {
   public:
-    SegmentationUnit(cv::Mat& red, cv::Mat& blue, cv::Mat& white, cv::Mat& yellow);
-    std::pair<std::vector<PointsList>, cv::Mat_<Color>> segmentImage();
-
-  private:
-    static cv::Mat_<Color> mergeColorMatrices(const cv::Mat& red, const cv::Mat& blue, const cv::Mat& white, const cv::Mat& yellow);
-    static cv::Mat_<State> createInitialStateMatrix(const cv::Mat& exampleImage);
-
-    cv::Mat_<Color> colors_;
-    cv::Mat_<State> states_;
+    cv::Mat_<Color> mergeImage(std::vector<std::pair<Color, cv::Mat>> images);
 };
 
 class SegmentDescriptor {
@@ -72,6 +64,19 @@ class SegmentDescriptor {
     double findCentralGeometricMoment(const unsigned p, const unsigned q);
 
     void findFiParameters();
+};
+
+class SegmentationUnit {
+  public:
+    SegmentationUnit(unsigned cutoffSize);
+    std::vector<SegmentDescriptor> segmentImage(cv::Mat_<Color> colors);
+    
+  private:
+    std::vector<PointsList> filterSegmentsBySize(std::vector<PointsList> pointLists);
+    std::vector<PointsList> makeInitialSegmentation(cv::Mat_<Color> colors, cv::Mat_<State> states);
+    std::vector<SegmentDescriptor> mapToDescriptors(std::vector<PointsList> pointLists, cv::Mat_<Color> colors);
+    cv::Mat_<State> createInitialStateMatrix(const cv::Mat& exampleImage);
+    const unsigned cutoffSize_;
 };
 
 };
