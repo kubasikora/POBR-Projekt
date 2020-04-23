@@ -189,7 +189,7 @@ unsigned SegmentDescriptor::findArea(){
 }
 
 double SegmentDescriptor::findwhRatio(){
-    return static_cast<double>(this->boundingBox_.width) / this->boundingBox_.height != 0 ? static_cast<double>(this->boundingBox_.height) : 1.0;
+    return static_cast<double>(this->boundingBox_.width) / (this->boundingBox_.height != 0 ? static_cast<double>(this->boundingBox_.height) : 1.0);
 }
 
 Color SegmentDescriptor::findSegmentColor(){
@@ -266,6 +266,26 @@ void SegmentDescriptor::findFiParameters(){
     fi4_ = fi4_ / std::pow(r, 6);
     fi5_ = fi5_ / std::pow(r, 12);
     fi6_ = fi6_ / std::pow(r, 8);
+}
+
+double SegmentDescriptor::getFiNorm(const SegmentDescriptor& s1, const SegmentDescriptor& s2){
+    double fi2Diff = std::pow(s1.fi2_ - s2.fi2_, 2);
+    double fi3Diff = std::pow(s1.fi3_ - s2.fi3_, 2);
+    double fi4Diff = std::pow(s1.fi4_ - s2.fi4_, 2);
+    double fi5Diff = std::pow(s1.fi5_ - s2.fi5_, 2);
+    double fi6Diff = std::pow(s1.fi6_ - s2.fi6_, 2);
+
+    return std::sqrt(fi2Diff + fi3Diff + fi4Diff + fi5Diff + fi6Diff);
+}
+
+double SegmentDescriptor::getFiNorm(const SegmentDescriptor& s1, const std::array<double, 5> s2){
+    double fi2Diff = std::pow(s1.fi2_ - s2[0], 2);
+    double fi3Diff = std::pow(s1.fi3_ - s2[1], 2);
+    double fi4Diff = std::pow(s1.fi4_ - s2[2], 2);
+    double fi5Diff = std::pow(s1.fi5_ - s2[3], 2);
+    double fi6Diff = std::pow(s1.fi6_ - s2[4], 2);
+
+    return std::sqrt(fi2Diff + fi3Diff + fi4Diff + fi5Diff + fi6Diff);
 }
 
 };

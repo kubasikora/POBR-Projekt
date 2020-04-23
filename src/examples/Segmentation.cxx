@@ -68,13 +68,70 @@ int main(int argc, char** argv){
         return v1.getArea() > v2.getArea();
     });
 
-    std::for_each(descriptors.begin(), descriptors.end(), [&](auto& segment){
+    std::map<POBR::Color, std::vector<POBR::SegmentDescriptor>> bins = {
+        {POBR::Color::RED, {} },
+        {POBR::Color::BLUE, {} },
+        {POBR::Color::WHITE, {} },
+        {POBR::Color::YELLOW, {} },
+    };
+
+    std::for_each(descriptors.begin(), descriptors.end(), [&bins](auto& segment){
+        bins[segment.getColor()].push_back(segment);
+    });
+
+    // const std::array<double, 5> whiteModel = {0.0396491, 4.09819e-08, 6.95962e-09, 6.7482e-17, -6.00043e-11};
+    // std::for_each(bins[POBR::Color::WHITE].begin(), bins[POBR::Color::WHITE].end(), [&](auto& segment){
+    //     segment.printDescriptorInfo(std::cout);
+
+    //     std::cout << "Similarity to model: " << POBR::SegmentDescriptor::getFiNorm(segment, whiteModel) << std::endl;
+
+    //     POBR::BoundingBox bb = segment.getBoundingBox();
+    //     if(bb.width == 0 || bb.height == 0)
+    //         return;
+    //     cv::Mat roi = ogImage(cv::Rect(bb.x, bb.y, bb.width, bb.height));
+    //     cv::imshow("White segment", roi);
+    //     cv::waitKey(-1);
+    // });
+
+    // std::for_each(bins[POBR::Color::RED].begin(), bins[POBR::Color::RED].end(), [&](auto& segment){
+    //     segment.printDescriptorInfo(std::cout);
+    //     POBR::BoundingBox bb = segment.getBoundingBox();
+    //     if(bb.width == 0 || bb.height == 0)
+    //         return;
+    //     cv::Mat roi = ogImage(cv::Rect(bb.x, bb.y, bb.width, bb.height));
+    //     cv::imshow("Red segment", roi);
+    //     cv::waitKey(-1);
+    // });
+
+    // const std::array<double, 5> blueModel = {0.258913, 1.36728e-05, 8.18383e-06, 4.30038e-11, -1.33892e-06};
+    // std::for_each(bins[POBR::Color::BLUE].begin(), bins[POBR::Color::BLUE].end(), [&](auto& segment){
+    //     segment.printDescriptorInfo(std::cout);
+    
+    //     std::cout << "Similarity to model: " << POBR::SegmentDescriptor::getFiNorm(segment, blueModel) << std::endl;
+        
+    //     POBR::BoundingBox bb = segment.getBoundingBox();
+    //     if(bb.width == 0 || bb.height == 0)
+    //         return;
+    //     cv::Mat roi = ogImage(cv::Rect(bb.x, bb.y, bb.width, bb.height));
+    //     cv::imshow("Blue segment", roi);
+    //     cv::waitKey(-1);
+    // });
+
+
+    const std::array<double, 5> lowerBunModel = {0.732495, 6.62663e-06, 6.10897e-07, -1.22082e-12, -5.22665e-07};
+    const std::array<double, 5> upperBunModel = {0.755384, 1.2037e-05, 1.17917e-06, -4.40856e-12, -1.01425e-06};
+    std::for_each(bins[POBR::Color::YELLOW].begin(), bins[POBR::Color::YELLOW].end(), [&](auto& segment){
         segment.printDescriptorInfo(std::cout);
+
+        std::cout << "Similarity to lower bun: " << POBR::SegmentDescriptor::getFiNorm(segment, lowerBunModel) << std::endl;
+        std::cout << "Similarity to upper bun: " << POBR::SegmentDescriptor::getFiNorm(segment, upperBunModel) << std::endl;
+        
+
         POBR::BoundingBox bb = segment.getBoundingBox();
         if(bb.width == 0 || bb.height == 0)
             return;
         cv::Mat roi = ogImage(cv::Rect(bb.x, bb.y, bb.width, bb.height));
-        cv::imshow("Segment", roi);
+        cv::imshow("Yellow segment", roi);
         cv::waitKey(-1);
     });
 

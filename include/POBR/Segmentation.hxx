@@ -35,13 +35,8 @@ class SegmentDescriptor {
     std::pair<double, double> getCenterOfGravity();
     double getwhRatio();
 
-    double getfi1();
-    double getfi2();
-    double getfi3();
-    double getfi4();
-    double getfi5();
-    double getfi6();
-    double getfi7();
+    static double getFiNorm(const SegmentDescriptor& s1, const SegmentDescriptor& s2);
+    static double getFiNorm(const SegmentDescriptor& s1, const std::array<double, 5> s2);
 
   private:
     PointsList points_;
