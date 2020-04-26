@@ -1,5 +1,6 @@
 #include<opencv2/opencv.hpp>
 #include<algorithm>
+#include<numeric>
 #include<array>
 #include<experimental/array>
 #include"POBR/Filters.hxx"
@@ -11,6 +12,9 @@ ConvolutionalFilter::ConvolutionalFilter(const cv::Mat& kernel)
 
 
 cv::Mat ConvolutionalFilter::filter(cv::Mat& image){
+    double Knorm = std::accumulate(kernel_.begin<double>(), kernel_.end<double>(), 0.0);
+    if(Knorm == 0)
+        Knorm = 1.0;
     const int imageHeight = image.rows, imageWidth = image.cols;
     cv::Mat filteredImage(cv::Size(imageWidth, imageHeight), image.type()); // size(width, height)
 
@@ -28,7 +32,7 @@ cv::Mat ConvolutionalFilter::filter(cv::Mat& image){
                     temporaryPixel[k] += kernel_.at<double>(filterOffsetY_ + j, filterOffsetX_ + i) * image.at<cv::Vec3b>(y-j, x-i)[k];
     
         for(auto k = 0; k < 3; ++k){
-            auto x = normPixel(temporaryPixel[k]);
+            auto x = normPixel(temporaryPixel[k] / Knorm);
             pixel[k] = x;
         }
     });

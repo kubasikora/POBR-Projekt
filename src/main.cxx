@@ -63,11 +63,9 @@ int main(int argc, char** argv){
     image = gf.filter(image);
 
     /* preprocessing - high pass filtering */
-    cv::Mat highPassKernel = (cv::Mat_<double>(5,5) << 0.05, 0.05, 0.05, 0.05, 0.05, 
-                                                      0.05, -0.6, -0.6, -0.6, 0.05,
-                                                      0.05, -0.6, 5, -0.6, 0.05,
-                                                      0.05, -0.6, -0.6, -0.6, 0.05,
-                                                      0.05, 0.05, 0.05, 0.05, 0.05);
+    cv::Mat highPassKernel = (cv::Mat_<double>(3,3) << -0.5, -0.5, -0.5,
+                                                       -0.5,   5,  -0.5,
+                                                       -0.5, -0.5, -0.5);
     POBR::ConvolutionalFilter highPass(highPassKernel);
     image = highPass.filter(image);
 
@@ -136,8 +134,8 @@ int main(int argc, char** argv){
     /* BK logo model */
     const std::array<double, 5> whiteModel = { 0.009737395, 2.18181e-7, 1.48058e-7, 4.23793e-15, 8.50314e-10 };
     const std::array<double, 5> blueModel = {0.5879375, 0.000248822, 5.08791e-5, 5.762582e-10, -1.1759715e-5};
-    const std::array<double, 5> lowerBunModel = {0.666357, 3.059285e-5, 2.84446e-6, -3.87055e-12, -6.78627e-7};
-    const std::array<double, 5> upperBunModel = {0.6692, 5.03532e-5, 4.84897e-6, -2.43564e-11, -2.41654e-6};
+    const std::array<double, 5> lowerBunModel = {0.766357, 3.059285e-5, 2.84446e-6, -3.87055e-12, -6.78627e-7};
+    const std::array<double, 5> upperBunModel = {0.7692, 5.03532e-5, 4.84897e-6, -2.43564e-11, -2.41654e-6};
     const double whiteWHDif = 0.9571055, whiteWHThreshold = 0.1867405*2;
     const double blueWHDif = 2.15142, blueWHThreshold = 0.748557*2;
     const double yellowWHDif = 2.31335, yellowWHThreshold = 0.57327*2;
