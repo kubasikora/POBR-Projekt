@@ -14,6 +14,8 @@ struct PreprocessingConfig {
     bool equalizeHistogram;
     bool reduceColors;
     int colorReducerRatio;
+    int gaussianRadius;
+    double sigma;
 };
 
 struct SegmentationConfig {

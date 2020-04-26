@@ -29,6 +29,8 @@ PreprocessingConfig AppConfig::extractPreprocessingParams(const YAML::Node node)
     config.equalizeHistogram = operations["equalizeHistogram"].as<bool>(false);
     config.reduceColors = operations["reduceColors"].as<bool>(false);
     config.colorReducerRatio = operations["colorReducerRatio"].as<int>(10);
+    config.gaussianRadius = operations["gaussianRadius"].as<int>(11);
+    config.sigma = operations["sigma"].as<double>(1.0);
 
     return config;
 }

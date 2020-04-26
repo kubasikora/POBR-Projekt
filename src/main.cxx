@@ -29,7 +29,7 @@ int main(int argc, char** argv){
 	    return -1;
     }
 
-    // preprocessing -> prescaling
+    /* preprocessing - prescaling */
     switch (config->preprocessing.algorithm){
       case AlgorithmType::NearestNeighbour:{
           POBR::NearestNeighbourInterpolationResizer r1(config->preprocessing.size);
@@ -50,17 +50,19 @@ int main(int argc, char** argv){
         }
     }
 
-    // preprocessing -> reduction of colors
+    cv::Mat ogImage = image.clone(); 
+
+    /* preprocessing - reduction of colors */
     if(config->preprocessing.reduceColors) {
         POBR::ColorReducer reducer(config->preprocessing.colorReducerRatio);
         reducer.reduce(image);
     }
-
-    cv::Mat ogImage = image.clone();
     
-    POBR::GaussianFilter gf(5, 3.0); // paramsy
+    /* preprocessing - gaussian filtering */
+    POBR::GaussianFilter gf(config->preprocessing.gaussianRadius, config->preprocessing.sigma); 
     image = gf.filter(image);
 
+    /* preprocessing - high pass filtering */
     cv::Mat highPassKernel = (cv::Mat_<double>(5,5) << 0, 0, 0, 0, 0, 
                                                       0, -0.5, -0.5, -0.5, 0,
                                                       0, -0.5, 5, -0.5, 0,
@@ -69,17 +71,17 @@ int main(int argc, char** argv){
     POBR::ConvolutionalFilter highPass(highPassKernel);
     image = highPass.filter(image);
 
-    // conversion -> to hsv
+    /* conversion to hsv colour space */
     POBR::BGR2HSVConverter converter;
     converter.convert(image);
 
-    // preprocessing -> histogram equalization
+    /* preprocessing - histogram equalization */
     if(config->preprocessing.equalizeHistogram) {
         POBR::HistogramEqualizer equalizer;
         equalizer.equalize(image);
     }
 
-    // segmentation -> thresholding
+    /* mask image by color thresholding */
     std::vector<std::pair<POBR::Color, cv::Mat>> images;
     if(config->segmentation.maskImage){
         POBR::MaskApplier masks;
@@ -119,25 +121,19 @@ int main(int argc, char** argv){
         }
     }
     
+    /* merge masked image into one matrix */
     POBR::ImageMerger im;
     cv::Mat_<POBR::Color> maskedImage = im.mergeImage(images);
 
+    /* segment image */
     POBR::SegmentationUnit su(config->segmentation.minimalSegmentSize);
     auto descriptors = su.segmentImage(maskedImage);
-
     std::cout << "Extracted segments: " << descriptors.size() << std::endl;
-
     std::sort(descriptors.begin(), descriptors.end(), [](auto& v1, auto& v2){
         return v1.getArea() > v2.getArea();
     });
 
-    std::map<POBR::Color, std::vector<POBR::SegmentDescriptor>> bins = {
-        {POBR::Color::RED, {} },
-        {POBR::Color::BLUE, {} },
-        {POBR::Color::WHITE, {} },
-        {POBR::Color::YELLOW, {} },
-    };
-
+    /* BK logo model */
     const std::array<double, 5> whiteModel = { 0.009737395, 2.18181e-7, 1.48058e-7, 4.23793e-15, 8.50314e-10 };
     const std::array<double, 5> blueModel = {0.5879375, 0.000248822, 5.08791e-5, 5.762582e-10, -1.1759715e-5};
     const std::array<double, 5> lowerBunModel = {0.666357, 3.059285e-5, 2.84446e-6, -3.87055e-12, -6.78627e-7};
@@ -147,7 +143,14 @@ int main(int argc, char** argv){
     const double blueWHDif = 2.15142, blueWHThreshold = 0.748557*2;
     const double yellowWHDif = 2.31335, yellowWHThreshold = 0.57327*2;
 
-    /* filter out segments based on hu's invariant moments */
+    /* filter out segments based on hu's invariant moments and divide into color bins */
+    std::map<POBR::Color, std::vector<POBR::SegmentDescriptor>> bins = {
+        {POBR::Color::RED, {} },
+        {POBR::Color::BLUE, {} },
+        {POBR::Color::WHITE, {} },
+        {POBR::Color::YELLOW, {} },
+    };
+
     std::for_each(descriptors.begin(), descriptors.end(), [&](auto& segment){
         double dif = 0.0, difLo = 0.0, difUp = 0.0;
         switch(segment.getColor()){
@@ -182,7 +185,7 @@ int main(int argc, char** argv){
         };
     });
 
-    // find pairs of buns
+    /* find pairs of buns */
     std::vector<POBR::SegmentDescriptor> pairs; 
     for(unsigned i = 0; i < bins[POBR::Color::YELLOW].size(); ++i){
         for(unsigned j = i+1; j < bins[POBR::Color::YELLOW].size(); ++j){
@@ -202,7 +205,7 @@ int main(int argc, char** argv){
     }
     std::cout << "Found " << pairs.size() << " pairs of buns" << std::endl;  
 
-    // add white background 
+    /* filter based on white backgrounds */
     std::vector<POBR::SegmentDescriptor> bunsWithBackgrounds; 
     std::for_each(pairs.begin(), pairs.end(), [&](auto& buns){
         const auto bunsCoG = buns.getCenterOfGravity(); 
@@ -221,7 +224,7 @@ int main(int argc, char** argv){
     });
     std::cout << "Found " << bunsWithBackgrounds.size() << " pairs of buns with appropiate background" << std::endl;
 
-    // add red letters
+    /* filter based on red letters and blue stripes */
     std::vector<POBR::SegmentDescriptor> logos;
     std::for_each(bunsWithBackgrounds.begin(), bunsWithBackgrounds.end(), [&](auto& buns){
         int lettersCount = 0;
@@ -248,7 +251,7 @@ int main(int argc, char** argv){
         }
     });
 
-
+    /* draw logos */
     std::for_each(logos.begin(), logos.end(), [&](auto& segment){
         POBR::BoundingBox bb = segment.getBoundingBox();
         if(bb.width == 0 || bb.height == 0)

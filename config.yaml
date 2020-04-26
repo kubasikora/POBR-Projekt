@@ -8,6 +8,8 @@ preprocessing:
     equalizeHistogram: true
     reduceColors: false
     colorReducerRatio: 10
+    gaussianRadius: 5
+    sigma: 3.0
  
 segmentation:
   minimalSegmentSize: 150
