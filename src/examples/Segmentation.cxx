@@ -92,6 +92,7 @@ int main(int argc, char** argv){
     const double whiteMomentDif = 0.15, blueMomentDif = 0.5, yellowMomentDif = 0.2;
     const double whiteWHDif = 0.9571055, whiteWHThreshold = 0.1867405*2;
     const double blueWHDif = 2.15142, blueWHThreshold = 0.748557*2;
+    const double yellowWHDif = 2.31335, yellowWHThreshold = 0.57327*2;
 
     /* filter out segments based on hu's invariant moments */
     std::for_each(descriptors.begin(), descriptors.end(), [&](auto& segment){
@@ -118,7 +119,7 @@ int main(int argc, char** argv){
             difLo = POBR::SegmentDescriptor::getFiNorm(segment, lowerBunModel);
             difUp = POBR::SegmentDescriptor::getFiNorm(segment, upperBunModel);
 
-            if(difLo > yellowMomentDif && difUp > yellowMomentDif)
+            if((difLo > yellowMomentDif && difUp > yellowMomentDif) || std::abs(yellowWHDif - segment.getwhRatio()) > yellowWHThreshold)
                 break;
 
             bins[POBR::Color::YELLOW].push_back(segment); break;
@@ -128,19 +129,22 @@ int main(int argc, char** argv){
         };
     });
 
-    std::for_each(bins[POBR::Color::YELLOW].begin(), bins[POBR::Color::YELLOW].end(), [&](auto& segment){
-        segment.printDescriptorInfo(std::cout);
-        POBR::BoundingBox bb = segment.getBoundingBox();
-        if(bb.width == 0 || bb.height == 0)
-            return;
+    // std::for_each(bins[POBR::Color::YELLOW].begin(), bins[POBR::Color::YELLOW].end(), [&](auto& segment){
+    //     segment.printDescriptorInfo(std::cout);
+    //     std::cout << POBR::SegmentDescriptor::getFiNorm(segment, lowerBunModel) << std::endl;
+    //     std::cout << POBR::SegmentDescriptor::getFiNorm(segment, upperBunModel) << std::endl;
+
+    //     POBR::BoundingBox bb = segment.getBoundingBox();
+    //     if(bb.width == 0 || bb.height == 0)
+    //         return;
         
-        cv::Mat roi = ogImage(cv::Rect(bb.x, bb.y, bb.width, bb.height));
-        cv::imshow("Yellow segment", roi);
+    //     cv::Mat roi = ogImage(cv::Rect(bb.x, bb.y, bb.width, bb.height));
+    //     cv::imshow("Yellow segment", roi);
         
-        cv::Mat rois = POBR::drawSegmentBoundary(ogImage, bb);
-        cv::imshow("Picture", rois);
-        cv::waitKey(-1);
-    });
+    //     cv::Mat rois = POBR::drawSegmentBoundary(ogImage, bb);
+    //     cv::imshow("Picture", rois);
+    //     cv::waitKey(-1);
+    // });
 
 
     // find pairs of buns
@@ -161,19 +165,19 @@ int main(int argc, char** argv){
         }
     }
 
-    std::for_each(pairs.begin(), pairs.end(), [&](auto& segment){
-        segment.printDescriptorInfo(std::cout);
-        POBR::BoundingBox bb = segment.getBoundingBox();
-        if(bb.width == 0 || bb.height == 0)
-            return;
+    // std::for_each(pairs.begin(), pairs.end(), [&](auto& segment){
+    //     segment.printDescriptorInfo(std::cout);
+    //     POBR::BoundingBox bb = segment.getBoundingBox();
+    //     if(bb.width == 0 || bb.height == 0)
+    //         return;
         
-        cv::Mat roi = ogImage(cv::Rect(bb.x, bb.y, bb.width, bb.height));
-        cv::imshow("Yellow buns", roi);
+    //     cv::Mat roi = ogImage(cv::Rect(bb.x, bb.y, bb.width, bb.height));
+    //     cv::imshow("Yellow buns", roi);
         
-        cv::Mat rois = POBR::drawSegmentBoundary(ogImage, bb);
-        cv::imshow("Picture", rois);
-        cv::waitKey(-1);
-    });
+    //     cv::Mat rois = POBR::drawSegmentBoundary(ogImage, bb);
+    //     cv::imshow("Picture", rois);
+    //     cv::waitKey(-1);
+    // });
         
     std::vector<POBR::SegmentDescriptor> bunsWithBackgrounds; 
 
@@ -194,19 +198,19 @@ int main(int argc, char** argv){
         }
     });
 
-    std::for_each(bunsWithBackgrounds.begin(), bunsWithBackgrounds.end(), [&](auto& segment){
-        segment.printDescriptorInfo(std::cout);
-        POBR::BoundingBox bb = segment.getBoundingBox();
-        if(bb.width == 0 || bb.height == 0)
-            return;
+    // std::for_each(bunsWithBackgrounds.begin(), bunsWithBackgrounds.end(), [&](auto& segment){
+    //     segment.printDescriptorInfo(std::cout);
+    //     POBR::BoundingBox bb = segment.getBoundingBox();
+    //     if(bb.width == 0 || bb.height == 0)
+    //         return;
         
-        cv::Mat roi = ogImage(cv::Rect(bb.x, bb.y, bb.width, bb.height));
-        cv::imshow("Yellow buns", roi);
+    //     cv::Mat roi = ogImage(cv::Rect(bb.x, bb.y, bb.width, bb.height));
+    //     cv::imshow("Yellow buns", roi);
         
-        cv::Mat rois = POBR::drawSegmentBoundary(ogImage, bb);
-        cv::imshow("Picture", rois);
-        cv::waitKey(-1);
-    });
+    //     cv::Mat rois = POBR::drawSegmentBoundary(ogImage, bb);
+    //     cv::imshow("Picture", rois);
+    //     cv::waitKey(-1);
+    // });
 
     std::vector<POBR::SegmentDescriptor> possibleObjects;
     // add red letters
