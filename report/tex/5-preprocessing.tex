@@ -234,17 +234,17 @@ $$
 \end{bmatrix}
 $$
 
-Rezultaty filtracji zostały przedstawione na rysunku~\ref{fig:filters-result}.
+Rezultaty filtracji zostały przedstawione na rysunku~\ref{fig:filters-result}. Na ostatnim rysunku nadal dość dobrze można rozróżnić poszczególne elementy znaku graficznego.
 
-Celem przedstawionego procesu filtracji było odfiltrowanie zakłóceń przy zachowaniu widocznych granic pomiędzy poszczególnymi kolorami znaku graficznego. Dzięki temu, w~dalszych krokach możliwym będzie przeprowadzenie segmentacji opartej o~różnice w~jasności pikseli. Innym podejściem mogłoby być przeprowadzanie  takiej filtracji, której celem byłoby wyeksponowanie krawędzi w~obrazie, celem przeprowadzenia segmentacji konturowej. Filtry realizujące tego typu operacje nazyawne są filtrami konturowymi. Przykładowym filtrem tego typu jest filtr Sobela oraz filtr Prewitta.
+Celem przedstawionego procesu filtracji było odfiltrowanie zakłóceń przy zachowaniu widocznych granic pomiędzy poszczególnymi kolorami znaku graficznego. Dzięki temu, w~dalszych krokach możliwym będzie przeprowadzenie segmentacji opartej o~różnice w~jasności pikseli. Innym podejściem mogłoby być przeprowadzanie  takiej filtracji, której celem byłoby wyeksponowanie krawędzi w~obrazie, tak aby móc przeprowadzić segmentację konturową. Filtry realizujące tego typu operacje nazyawne są filtrami konturowymi. Przykładowym filtrem tego typu jest filtr Sobela oraz filtr Prewitta.
 
 \begin{figure}[H]
     \centering
-    \subfloat[Przed filtracją]{{\includegraphics[scale=0.45]{./figures/filters/bk1.jpg}}}
+    \subfloat[Przed filtracją]{{\includegraphics[scale=2.0]{./figures/filters/bk1.jpg}}}
     \\
-    \subfloat[Po filtracji gaussowskiej]{{\includegraphics[scale=0.45]{./figures/filters/gauss.jpg}}}%
+    \subfloat[Po filtracji gaussowskiej]{{\includegraphics[scale=0.48]{./figures/filters/gauss.jpg}}}%
     \\
-    \subfloat[Po filtracji górnoprzepustowej]{{\includegraphics[scale=0.45]{./figures/filters/highpass.png} }}%
+    \subfloat[Po filtracji górnoprzepustowej]{{\includegraphics[scale=0.48]{./figures/filters/highpass.jpg} }}%
     \caption{Efekt działania filtrów w programie}
     \label{fig:filters-result}
 \end{figure}

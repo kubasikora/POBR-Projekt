@@ -26,9 +26,10 @@ int main(int argc, char** argv){
     cv::Mat medianFiltered = mf.filter(image);
     cv::imshow("median filtered", medianFiltered);
 
-    POBR::GaussianFilter gf(11, 1.0);
+    POBR::GaussianFilter gf(5, 2.0);
     cv::Mat gaussianFiltered = gf.filter(image);
     cv::imshow("gaussian filtered", gaussianFiltered);
+    cv::imwrite("gauss.jpg", gaussianFiltered);
 
     POBR::DilationFilter df(3);
     cv::Mat dilationFiltered = df.filter(image);
@@ -58,14 +59,14 @@ int main(int argc, char** argv){
     cv::Mat lowPassImage = image.clone(), highPassImage = image.clone();
 
     lowPassImage = lowPass.filter(lowPassImage);
-    highPassImage = highPass.filter(highPassImage);
+    highPassImage = highPass.filter(gaussianFiltered);
 
     cv::imshow("original", image);
     cv::imshow("low pass", lowPassImage);
     cv::imshow("high pass", highPassImage);
 
     cv::imwrite("lowpass.png", lowPassImage);
-    cv::imwrite("highpass.png", highPassImage);
+    cv::imwrite("highpass.jpg", highPassImage);
     cv::waitKey(-1);
     return 0;
 }
