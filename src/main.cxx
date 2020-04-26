@@ -63,11 +63,11 @@ int main(int argc, char** argv){
     image = gf.filter(image);
 
     /* preprocessing - high pass filtering */
-    cv::Mat highPassKernel = (cv::Mat_<double>(5,5) << 0, 0, 0, 0, 0, 
-                                                      0, -0.5, -0.5, -0.5, 0,
-                                                      0, -0.5, 5, -0.5, 0,
-                                                      0, -0.5, -0.5, -0.5, 0,
-                                                      0, 0, 0, 0, 0);
+    cv::Mat highPassKernel = (cv::Mat_<double>(5,5) << 0.05, 0.05, 0.05, 0.05, 0.05, 
+                                                      0.05, -0.6, -0.6, -0.6, 0.05,
+                                                      0.05, -0.6, 5, -0.6, 0.05,
+                                                      0.05, -0.6, -0.6, -0.6, 0.05,
+                                                      0.05, 0.05, 0.05, 0.05, 0.05);
     POBR::ConvolutionalFilter highPass(highPassKernel);
     image = highPass.filter(image);
 
@@ -250,7 +250,9 @@ int main(int argc, char** argv){
         const double letterCoeff = config->identification.letterCoefficient;
         const double stripeCoeff = config->identification.stripeCoefficient;
 
-        if(letterCoeff*lettersCount + stripeCoeff*stripesCount > pointsThreshold){
+        const double result = letterCoeff*lettersCount + stripeCoeff*stripesCount;
+
+        if(result >= pointsThreshold){
             logos.push_back(buns);
         }
     });

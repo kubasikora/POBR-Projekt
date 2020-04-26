@@ -9,7 +9,7 @@ preprocessing:
     reduceColors: false
     colorReducerRatio: 10
     gaussianRadius: 5
-    sigma: 3.0
+    sigma: 2.0
  
 segmentation:
   minimalSegmentSize: 150
