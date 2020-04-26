@@ -122,14 +122,10 @@ int main(int argc, char** argv){
     POBR::ImageMerger im;
     cv::Mat_<POBR::Color> maskedImage = im.mergeImage(images);
 
-    POBR::SegmentationUnit su(150); // paramsy
+    POBR::SegmentationUnit su(config->segmentation.minimalSegmentSize);
     auto descriptors = su.segmentImage(maskedImage);
 
     std::cout << "Extracted segments: " << descriptors.size() << std::endl;
-
-    std::sort(descriptors.begin(), descriptors.end(), [](auto& v1, auto& v2){
-        return v1.getArea() > v2.getArea();
-    });
 
     std::sort(descriptors.begin(), descriptors.end(), [](auto& v1, auto& v2){
         return v1.getArea() > v2.getArea();
@@ -194,11 +190,12 @@ int main(int argc, char** argv){
 
             const auto s1Cog = segment1.getCenterOfGravity(), s2Cog = segment2.getCenterOfGravity();
             const double distance = std::sqrt(std::pow(s1Cog.first - s2Cog.first, 2) + std::pow(s1Cog.second - s2Cog.second, 2));
-
+            const double maxHeight = std::max(segment1.getBoundingBox().height, segment2.getBoundingBox().height);
             const double ratio = segment1.getwhRatio() / segment2.getwhRatio();
-            
-            
-            if(ratio > 0.8 && ratio < 1.3 && distance < 3.5*std::max(segment1.getBoundingBox().height, segment2.getBoundingBox().height)){
+
+            if(ratio > config->identification.minimalBunsWHRatio 
+            && ratio < config->identification.maximalBunsWHRatio
+            && distance < config->identification.bunsHeightToDistanceRatio*maxHeight){
                 pairs.push_back(segment1 + segment2);
             }
         }
@@ -225,7 +222,7 @@ int main(int argc, char** argv){
     std::cout << "Found " << bunsWithBackgrounds.size() << " pairs of buns with appropiate background" << std::endl;
 
     // add red letters
-    std::vector<POBR::SegmentDescriptor> possibleObjects;
+    std::vector<POBR::SegmentDescriptor> logos;
     std::for_each(bunsWithBackgrounds.begin(), bunsWithBackgrounds.end(), [&](auto& buns){
         int lettersCount = 0;
         std::for_each(bins[POBR::Color::RED].begin(), bins[POBR::Color::RED].end(), [&](auto& letter){
@@ -242,14 +239,17 @@ int main(int argc, char** argv){
                 ++stripesCount;
         });
 
-        const double pointsThreshold = 0.8, letterCoeff = 0.1, stripeCoeff = 0.3;
+        const double pointsThreshold = config->identification.detailPointsThreshold;
+        const double letterCoeff = config->identification.letterCoefficient;
+        const double stripeCoeff = config->identification.stripeCoefficient;
+
         if(letterCoeff*lettersCount + stripeCoeff*stripesCount > pointsThreshold){
-            possibleObjects.push_back(buns);
+            logos.push_back(buns);
         }
     });
 
 
-    std::for_each(possibleObjects.begin(), possibleObjects.end(), [&](auto& segment){
+    std::for_each(logos.begin(), logos.end(), [&](auto& segment){
         POBR::BoundingBox bb = segment.getBoundingBox();
         if(bb.width == 0 || bb.height == 0)
             return;
@@ -258,9 +258,9 @@ int main(int argc, char** argv){
         POBR::drawSegmentBoundary(ogImage, bb);
     });
 
-    std::cout << "Number of logos found: " << possibleObjects.size() << std::endl;
+    std::cout << "Number of logos found: " << logos.size() << std::endl;
     
     cv::imshow("Picture", ogImage);
     cv::waitKey(-1);
-    return 0;
+    return logos.size();
 }

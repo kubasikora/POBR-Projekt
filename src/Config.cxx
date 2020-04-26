@@ -5,11 +5,12 @@ AppConfig::AppConfig(const std::string configPath){
 
     const YAML::Node preprocessingConfig = config["preprocessing"];
     const YAML::Node segmentationConfig = config["segmentation"];
+    const YAML::Node identificationConfig = config["identification"];
 
     preprocessing = extractPreprocessingParams(preprocessingConfig);
     segmentation = extractSegmentationParams(segmentationConfig);
+    identification = extractIdentificationParams(identificationConfig);
 }
-
 
 PreprocessingConfig AppConfig::extractPreprocessingParams(const YAML::Node node){
     PreprocessingConfig config;
@@ -34,6 +35,7 @@ PreprocessingConfig AppConfig::extractPreprocessingParams(const YAML::Node node)
 
 SegmentationConfig AppConfig::extractSegmentationParams(const YAML::Node node){
     SegmentationConfig config;
+    config.minimalSegmentSize = node["minimalSegmentSize"].as<int>(100);
     config.maskImage = node["maskImage"].as<bool>(false);
     config.colorMasks["red"] = node["useRed"].as<bool>(false);
     config.colorMasks["blue"] = node["useBlue"].as<bool>(false);
@@ -63,6 +65,19 @@ SegmentationConfig AppConfig::extractSegmentationParams(const YAML::Node node){
     return config;
 }
 
+IdentificationConfig AppConfig::extractIdentificationParams(const YAML::Node node){
+    IdentificationConfig config;
+
+    config.minimalBunsWHRatio = node["minimalBunsWHRatio"].as<double>(0.8);
+    config.maximalBunsWHRatio = node["maximalBunsWHRatio"].as<double>(1.3);
+    config.bunsHeightToDistanceRatio = node["bunsHeightToDistanceRatio"].as<double>(3.5);
+
+    config.detailPointsThreshold = node["detailPointsThreshold"].as<double>(1.0);
+    config.letterCoefficient = node["letterCoefficient"].as<double>(0.1);
+    config.stripeCoefficient = node["stripeCoefficient"].as<double>(0.3);
+
+    return config;
+}
 
 void SegmentationConfig::extractParams(const YAML::Node node, std::map<std::string, int>& map){
     map["lowerHue"] = node["lowerHue"].as<int>(0);

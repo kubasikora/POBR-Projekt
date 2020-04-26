@@ -10,6 +10,7 @@ preprocessing:
     colorReducerRatio: 10
  
 segmentation:
+  minimalSegmentSize: 150
   maskImage: true
 
   useRed: true
@@ -55,3 +56,11 @@ segmentation:
 
     lowerValue: 150
     upperValue: 255
+
+identification:
+  minimalBunsWHRatio: 0.8
+  maximalBunsWHRatio: 1.3
+  bunsHeightToDistanceRatio: 3.5
+  detailPointsThreshold: 0.8
+  letterCoefficient: 0.1
+  stripeCoefficient: 0.3
