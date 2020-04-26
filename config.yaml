@@ -1,8 +1,8 @@
 preprocessing:
   prescale:
     algorithm: Bicubic
-    imageHeight: 1000
-    imageWidth: 1000
+    imageHeight: 900
+    imageWidth: 1200
   
   operations:
     equalizeHistogram: true
@@ -17,7 +17,7 @@ segmentation:
     lowerHue: -20
     upperHue: 20
 
-    lowerSaturation: 180
+    lowerSaturation: 150
     upperSaturation: 255
 
     lowerValue: 100
@@ -26,9 +26,9 @@ segmentation:
   useBlue: true
   blueMask:
     lowerHue: 220
-    upperHue: 260
+    upperHue: 300
 
-    lowerSaturation: 100
+    lowerSaturation: 70
     upperSaturation: 255
 
     lowerValue: 0
@@ -40,9 +40,9 @@ segmentation:
     upperHue: 360
 
     lowerSaturation: 0
-    upperSaturation: 50
+    upperSaturation: 75
 
-    lowerValue: 200
+    lowerValue: 100
     upperValue: 255
 
   useYellow: true
@@ -50,8 +50,8 @@ segmentation:
     lowerHue: 20
     upperHue: 60
 
-    lowerSaturation: 100
+    lowerSaturation: 80
     upperSaturation: 255
 
-    lowerValue: 180
+    lowerValue: 150
     upperValue: 255

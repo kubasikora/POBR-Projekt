@@ -14,7 +14,7 @@ AppConfig::AppConfig(const std::string configPath){
 PreprocessingConfig AppConfig::extractPreprocessingParams(const YAML::Node node){
     PreprocessingConfig config;
     const YAML::Node prescaler = node["prescale"];
-    config.size = std::make_pair<int, int>(prescaler["imageHeight"].as<int>(600), prescaler["imageWidth"].as<int>(800));
+    config.size = std::make_pair<int, int>(prescaler["imageWidth"].as<int>(1200), prescaler["imageHeight"].as<int>(900));
     config.bicubic = prescaler["bicubicRatio"].as<double>(-0.75);
     const std::string algorithmName = prescaler["algorithm"].as<std::string>("Bicubic");
     std::map<std::string, AlgorithmType> algorithms = {
