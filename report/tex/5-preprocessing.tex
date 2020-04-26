@@ -131,10 +131,8 @@ W~celu wyboru algorytmu zmiany rozmiaru obrazka do projektowanego systemu wykryw
     \centering
     \begin{tikzpicture}
         \pgfplotsset{%
+            y tick label style={/pgf/number format/.cd,fixed,precision=4},
             x tick label style={/pgf/number format/1000 sep=\,},
-            log base 10 number format code/.code={%
-                $\pgfmathparse{10^(#1)}\pgfmathprintnumber{\pgfmathresult}$%
-            }%
         }  
         \begin{axis}[
             grid=minor,
@@ -142,7 +140,7 @@ W~celu wyboru algorytmu zmiany rozmiaru obrazka do projektowanego systemu wykryw
             ymode=log,
             xlabel={rozmiar [px]},
             ylabel={czas przetwarzania [s]},
-            % xtick={50, 100, 200, 400, 800, 1600, 3200, 6400},
+            ytick={0.0001, 0.001, 0.01, 0.1, 1, 10, 100},
             log ticks with fixed point
         ]
             \addplot[mark=*, red, semithick] table {
@@ -187,13 +185,66 @@ Na wykresie~\ref{fig:resizing-time} przedstawiono zależność czasu przetwarzan
 
 Na podstawie wykonanego eksperymentu, zdecydowałem się na wybór algorytmu interpolacji dwukubicznej. Krótki czas przetwarzania nie jest szczególnie oczekiwaną cechą od projektowanego systemu oraz algorytm będzie stosowany do zmniejszania obrazków a~nie do ich znacznego powiększania, dlatego też z~wszystkich trzech przedstawionych rozwiązań, algorytm dwukubiczny jest najlepszy.
 
-\subsection{Filtracja zakłóceń}
-\todo{Opisać przygotowane algorytmy filtracji \begin{itemize}
-    \item medianowa
-    \item erozyjny
-    \item dylacyjny
-    \item gaussowski
-    \item splotowy z podaniem jądra 
-\end{itemize} Znaleźć źródła.}
+\subsection{Filtracja}
+Po zmianie rozmiaru zdjęcia, kolejnym krokiem była jego filtracja. Celem filtracji jest pozbycie się zakłóceń w~obrazie. W~ramach projektu zaimplementowałem i~przetestowałem następujące filtry:
+\begin{itemize}
+    \item splotowe,
+    \begin{itemize}
+        \item dolnoprzepustowe,
+        \item górnoprzepustowe,
+        \item gaussowskie,
+    \end{itemize}
+    \item statystyczne,
+    \begin{itemize}
+        \item minimum,
+        \item maksimum,
+        \item medianowy.
+    \end{itemize}
+\end{itemize}
 
-\todo{Opisać dlaczego rozmiar okna filtru nie jest parametrem typu w szablonie a parametrem obiektu - głównie dlatego że to projekt badawczy i żeby sprawdzić więcej opcji bez rekompilacji całej biblioteki, jednak najlepszy efekty będzie przy zastosowaniu metaprogramowania przy użyciu szablonów, gdzie rozmiar okna będzie parametrem typu}
+Wartość funkcji jasności nowego piksela przefiltrowanego oblicza się na podstawie wartości funkcji jasności pikseli sąsiadujących z~nim. W~wyniku działania algorytmu filtracyjnego musi powstać nowa kopia obrazu. 
+
+Ciekawym zagadnieniem w~filtracji tego typu jest zachowanie algorytmu na brzegach obrazu, gdzie nie każdy piksel ma pełne sąsiedztwo. Algorytm może przyjąć jedną z~wielu strategii ekstrapolacji obrazu. W~OpenCV~\cite{opencv} zaimplementowano następujące strategie:
+\begin{itemize}
+    \item \emph{BORDER\_{}REPLICATE} -- algorytm powiela piksele brzegowe tyle razy, ile wynosi połowa okna przetwarzania filtru,
+    \item \emph{BORDER\_{}REFLECT} -- algorytm lustrzanie odbija piksele znajdujące się przy granicy obrazka,
+    \item \emph{BORDER\_{}WRAP} -- algorytm zawija obraz i~korzysta z~pikseli znajdujących się po drugiej stronie obrazka,
+    \item \emph{BORDER\_{}CONSTANT} -- algorytm wypełnia brakujące piksele pewną podaną stałą wartością.
+\end{itemize}
+
+W~przypadku postawionego problemu, gdzie poszukiwane logo zazwyczaj jest sporych rozmiarów oraz składa się z~wielu komponentów, zdecydowałem się na porzucenie przedstawionych strategii i~zaimplementowanie własnej, polegającej na pomijaniu pikseli brzegowych.
+
+\subsubsection{Implementacja filtrów w języku C++}
+Każdy z~zaimplementowanych filtrów opisany jest przez rozmiar swojego okna. Język C++ pozwala na definiowanie własnych typów parametryzowanych, przy użyciu szablonów. Dzięki temu, stosując technikę metaprogramowania, można zaimplementować parametryzowane funkcję filtrujące, w~których rozmiar okna jest argumentem typu. Takie podejście pozwala na znaczne przyspieszenie kodu, gdyż pozwala na rozwinięcie pętli filtru a~co za tym idzie, uniknięcie kosztownych instrukcji skoku procesora. 
+
+Mimo niewątpliwych zalet metaprogramowania, umyślnie zdecydowałem się na implementację filtru w~sposób klasyczny z~wykorzystaniem pętli. Każda zmiana rozmiaru filtru wiązałaby się z~ponowną rekompilacją programu, natomiast gdy rozmiar filtru podany jest jako parametr wczytywany z~pliku, pozwala to na przetestowanie większej liczby rozwiązań. 
+
+\subsubsection{Wykorzystanie w projekcie}
+Metodą prób i~błędów, dobrałem zestaw filtrów, którymi traktowany jest każdy obraz przed rozpoczęciem segmentacji. 
+
+W~pierwszej kolejności z~obrazu należy odfiltrować zakłócenia. Do tego wykorzystany może zostać filtr dolnoprzepustowy, medianowy lub gaussowski. Po przetestowaniu każdego z nich, ostatecznie zdecydowałem się na filtr gaussowski o~rozmiarze okna 5x5 pikseli oraz jednakowym odchyleniu standardowym w~każdej osi $\sigma_{\mathrm{x}} = \sigma_{\mathrm{y}} = 2{,}0$. Zastosowanie delikatnego filtru pozwala na odfiltrowanie zakłóceń, zostawiając przy tym kontury elementów poszukiwanego znaku. 
+
+W~celu podkreślenia różnic pomiędzy kolorowymi fragmentami, w~następnym kroku dokonałem filtracji górnoprzepustowej filtrem o~nieznormalizowanym oknie 3x3:
+
+$$
+\begin{bmatrix}
+    -0{,}5 & -0{,}5 & -0{,}5 \\
+    -0{,}5 &  5{,}0 & -0{,}5 \\
+    -0{,}5 & -0{,}5 & -0{,}5 
+\end{bmatrix}
+$$
+
+Rezultaty filtracji zostały przedstawione na rysunku~\ref{fig:filters-result}.
+
+Celem przedstawionego procesu filtracji było odfiltrowanie zakłóceń przy zachowaniu widocznych granic pomiędzy poszczególnymi kolorami znaku graficznego. Dzięki temu, w~dalszych krokach możliwym będzie przeprowadzenie segmentacji opartej o~różnice w~jasności pikseli. Innym podejściem mogłoby być przeprowadzanie  takiej filtracji, której celem byłoby wyeksponowanie krawędzi w~obrazie, celem przeprowadzenia segmentacji konturowej. Filtry realizujące tego typu operacje nazyawne są filtrami konturowymi. Przykładowym filtrem tego typu jest filtr Sobela oraz filtr Prewitta.
+
+\begin{figure}[H]
+    \centering
+    \subfloat[Przed filtracją]{{\includegraphics[scale=0.45]{./figures/filters/bk1.jpg}}}
+    \\
+    \subfloat[Po filtracji gaussowskiej]{{\includegraphics[scale=0.45]{./figures/filters/gauss.jpg}}}%
+    \\
+    \subfloat[Po filtracji górnoprzepustowej]{{\includegraphics[scale=0.45]{./figures/filters/highpass.png} }}%
+    \caption{Efekt działania filtrów w programie}
+    \label{fig:filters-result}
+\end{figure}
