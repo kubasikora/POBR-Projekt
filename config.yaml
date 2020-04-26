@@ -63,6 +63,11 @@ identification:
   minimalBunsWHRatio: 0.8
   maximalBunsWHRatio: 1.3
   bunsHeightToDistanceRatio: 3.5
+
   detailPointsThreshold: 0.8
   letterCoefficient: 0.1
   stripeCoefficient: 0.3
+
+  whiteaxDifference: 0.15
+  blueMaxDifference: 0.5
+  yellowMaxDifference: 0.2

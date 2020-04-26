@@ -42,6 +42,11 @@ struct IdentificationConfig {
     double detailPointsThreshold;
     double letterCoefficient;
     double stripeCoefficient;
+
+    double whiteMaxDifference;
+    double blueMaxDifference;
+    double yellowMaxDifference;
+
   private:
     friend class AppConfig;
 };

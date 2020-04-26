@@ -138,10 +138,14 @@ int main(int argc, char** argv){
     const std::array<double, 5> blueModel = {0.5879375, 0.000248822, 5.08791e-5, 5.762582e-10, -1.1759715e-5};
     const std::array<double, 5> lowerBunModel = {0.666357, 3.059285e-5, 2.84446e-6, -3.87055e-12, -6.78627e-7};
     const std::array<double, 5> upperBunModel = {0.6692, 5.03532e-5, 4.84897e-6, -2.43564e-11, -2.41654e-6};
-    const double whiteMomentDif = 0.15, blueMomentDif = 0.5, yellowMomentDif = 0.2;
     const double whiteWHDif = 0.9571055, whiteWHThreshold = 0.1867405*2;
     const double blueWHDif = 2.15142, blueWHThreshold = 0.748557*2;
     const double yellowWHDif = 2.31335, yellowWHThreshold = 0.57327*2;
+
+    /* load max diffs */
+    const double whiteMomentDif = config->identification.whiteMaxDifference;
+    const double blueMomentDif = config->identification.blueMaxDifference;
+    const double yellowMomentDif = config->identification.yellowMaxDifference;
 
     /* filter out segments based on hu's invariant moments and divide into color bins */
     std::map<POBR::Color, std::vector<POBR::SegmentDescriptor>> bins = {

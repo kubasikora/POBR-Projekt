@@ -78,6 +78,10 @@ IdentificationConfig AppConfig::extractIdentificationParams(const YAML::Node nod
     config.letterCoefficient = node["letterCoefficient"].as<double>(0.1);
     config.stripeCoefficient = node["stripeCoefficient"].as<double>(0.3);
 
+    config.whiteMaxDifference = node["whiteMaxDifference"].as<double>(0.1);
+    config.blueMaxDifference = node["blueMaxDifference"].as<double>(0.1);
+    config.yellowMaxDifference = node["yellowMaxDifference"].as<double>(0.1);
+
     return config;
 }
 
