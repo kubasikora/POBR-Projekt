@@ -1,1 +1,45 @@
-\todo{Opisać algorytm identyfikacji segmentów z wyznaczonymi cechami. Raczej odległość euklidesowa do wzorcowo wykrytych segmentów.}
+Ostatnim krokiem algorytmu wykrywania logo \bk jest identyfikacja obszarów. Zadaniem identyfikacji jest stwierdzenie na podstawie otrzymanego opisu kształtu, jakiego obiektu jest on obrazem. Zasadniczo, wyróżnia się dwa podejścia: klasyfikację w~przestrzeni cech oraz klasyfikację strukturalną~\cite{pobr:wyklad}.
+
+Klasyfikacja w~przestrzeni cech polega na porównaniu wektorów policzonych wcześniej cech. Głównym założeniem tego podejścia jest fakt, że punkty w~przestrzeni cech odpowiadające obrazom tych samych obiektów, leżą blisko siebie. Klasyfikacja czy dany segment jest obrazem danego obiektu sprowadza się do policzenia odległości dwóch punktów w~przestrzeni cech i~porównaniu jej z~danym progiem wiarygodności. Im większy próg wiarygodności, tym więcej obiektów system będzie w~stanie wyłapać, przepuszczając przy tym segmenty które nie są danym obiektem (odczyt fałszywie pozytywny). Zmniejszając próg, zwiększymy dokładność systemu kosztem większej ilości odrzuconych poprawnych segmentów (odczytów fałszywie negatywnych).
+
+Drugim podejściem jest klasyfikacja strukturalna. Służy ona do identyfikacji złożonych obiektów. Opiera się o~analizę relacji pomiędzy obiektami składowymi, identyfikowanego obietku~\cite{pobr:wyklad}. W~tym podejściu, obraz traktowany jest dwutorowo: jako zbiór obiektów elementarnych oraz jako zbiór relacji zachodzących pomiędzy nimi.
+
+\subsubsection{Realizacja w projekcie}
+W~zadaniu projektowym posłużyłem się metodą mieszaną, korzystającą z~obu podejść. W~pierwszej kolejności segmenty były grupowane ze względu na kolor, a~następnie porównywane ze wzorcem kształtu. Wzorce zostały wyznaczone w~sposób eksperymentalny, poprzez badanie wartości momentów dla obrazów wzorcowych. Dla każdej badanej cechy, wyznaczona została średnia estymata cechy -- mediana. Zdecydowałem się na wykorzystanie mediany, ponieważ jest ona mniej obciążonym estymatorem od średniej arytmetycznej (mniej reaguje na wartości odstające). Oprócz mediany, obliczone zostało odchylenie standardowe, które miało posłużyć do wyznaczenia przedziałów wiarygodności. 
+
+Modele zostały osobno wyznaczone dla:
+\begin{itemize}
+    \item białego okrągłego tła,
+    \item niebieskiego paska okalającego napis,
+    \item żółtej górnej bułki,
+    \item żółtej dolnej bułki. 
+\end{itemize}
+
+Zdecydowałem się na pominięcie czerwonych liter w~znaku, ponieważ po przeprowadzonej segmetacji, litery często zlewały się w~jeden segment, uniemożliwiając przy tym wykrywanie pojedynczych znaków. 
+
+W pierwszym kroku, segmenty były dzielone na grupy ze względu na ich kolor, a~następnie dla segmentów białych, niebieskich i~żółtych sprawdzano ich kształty, poprzez porównanie momentów niezmienniczych z~podanym modelem. Jeżeli suma różnic kwadratów mieściła się w~danym przedziale, przeprowadzany był kolejny test, sprawdzający zgodność współczynnika szerokości do wysokości segmentu. Jeżeli dany segment przeszedł oba testy, był on przekazywany do dalszej analizy jako potencjalny element wykrytego loga.
+
+Po przeprowadzeniu identyfikacji obiektów bazowych w~przestrzeni cech, przyszedł czas na identyfikację strukturalną. Odbywała się ona w~trzech etapach:
+
+\begin{itemize}
+    \item znalezienie par zółtych bułek,
+    \item dopasowanie białego tła dla każdej pary,
+    \item potwierdzenie przez dobranie szczegółów (czerwonych liter i~niebieskiego paska).
+\end{itemize}
+
+W~pierwszym kroku, każdy z~żółtych segmentów był dobierany w~pary i~sprawdzana była odległość między nimi oraz ich porównywane były ich stosunki szerokości do wysokości.
+W~wyniku analizy danych, udało mi się stwierdzić że jeżeli segmenty rzeczywiście były elementami jednego logo to odległość pomiędzy ich środkami ciężkości $d_{ij}$ nie przekraczała ona wysokości większej z~bułek więcej niż $3{,}5$ raza. Co więcej, stosunek stosunków szerokości do wysokości mieścił się w~przedziale $[0{,}8;1{,}3]$.
+
+\begin{equation}
+    \begin{aligned}
+        d_{ij} &= 3{,}5 * max(h_{i}, h_{j}) \\
+        0{,}8 &\leq \frac{r^{wh}_{i}}{r^{wh}_{j}} \leq 1{,}3 \\
+    \end{aligned}
+    \label{eqn:buns}
+\end{equation}
+
+Wszystkie pary które spełniają oba warunki są łączone w~jeden, nowy deskryptor segmentu.
+
+Kolejnym etapem jest dopasowanie białego tła do każdej pary bułek. W~tym celu dla każdej pary, sprawdzana jest zgodność z~każdym białym segmentem. Segmenty są zgodne jeżeli środek ciężkości pary bułek znajduje się w~największym prostokącie opisanym na segmencie tła. Taki sposób może dopasowywanie z~tłem może dać wyniki z~wieloma białymi segmentami, dlatego ostatecznie, do dalszej analizy przechodzi największe znalezione tło. Po tym kroku ponownie tworzony jest nowy deskryptor segmentu, składający się ze znalezionego tła oraz wcześniej wykrytej pary bułek.
+
+W~ostatnim kroku, algorytm szuka w~poszukiwanym fragmencie obrazu, szczegółów potwierdzających że dany segment rzeczywiście jest logiem \bk. Potwierdzanie odbywa się poprzez mechanizm głosowania. Każdy czerwony segment, którego środek ciężkości znajduje się w~sprawdzanym logo dodaje do wyniku $0{,}1$ głosu. Każdy niebieski segment, który nie został odfiltrowany w~wyniki identyfikacji w~przestrzeni cech, znajdujący się w~sprawdzanym logo dodaje do wyniki $0{,}3$ głosu. Jeżeli suma głosów przekroczy założony próg ($T_{v} = 0{,}7$), to dany segment zostaje potwierdzony jako logo. Taki sposób analizy pozwala na wykrywanie wielu poszukiwanych znaków na jednym obrazie.  

@@ -268,6 +268,7 @@ int main(int argc, char** argv){
     std::cout << "Number of logos found: " << logos.size() << std::endl;
     
     cv::imshow("Picture", ogImage);
+    cv::imwrite("resultbk.jpg", ogImage);
     cv::waitKey(-1);
     return logos.size();
 }
