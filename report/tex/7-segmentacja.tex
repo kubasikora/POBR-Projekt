@@ -65,7 +65,7 @@ W~metodzie oprócz macierzy kolorów, wykorzystywana jest również macierz stan
 
 Na rysunku~\ref{fig:segmentation-overview} przedstawiony został schemat blokowy algorytmu segmentacji metodą rozrostu obszarów. Algorytm iterując po kolei po wszystkich pikselach szuka nieodwiedzonych pikseli, których kolor jest inny niż \texttt{OTHER}. Jeżeli taki znajdzie, przyjmuje go za ziarno i~rozpoczyna budowę segmentu.
 
-Do budowy segmentu wykorzystany został stos, na którym znajdują się przetwarzane piksele. Po umieszczeniu ziarna na stosie, algorytm iteruje do momentu aż stos będzie pusty, sprawdzając piksel który znajduje się na szczycie stosu. Jeżeli piksel ten jest taki sam jak ziarno, to zostaje on włączony do segmentu, a na stos wrzucane są piksele sąsiadujące z~nim. Algorytm kończy pracę po przeiterowaniu po wszystkich pikselach.
+Do budowy segmentu wykorzystany został stos, na którym znajdują się przetwarzane piksele. Po umieszczeniu ziarna na stosie, algorytm iteruje do momentu aż stos będzie pusty, sprawdzając piksel który znajduje się na szczycie stosu. Jeżeli piksel ten jest taki sam jak ziarno, to zostaje on włączony do segmentu, a na stos wrzucane są piksele sąsiadujące z~nim. Algorytm kończy pracę po przejściu przez wszystkie piksele.
 
 Przedstawiony algorytm różni się trochę od oryginalnej wersji algorytmu, w~której ziarna dobierane są losowo przed iterowaniem po obrazie. Zaprezentowana wersja pozwala na jednoznaczne wyznaczenie segmentów, bez obawy że część segmentów nie zostanie odnaleziona z~powodu złego dobrania ziaren początkowych, kosztem większej złożoności obliczeniowej.
 

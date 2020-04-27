@@ -1,4 +1,4 @@
-W~wyniku działania przedstawionego algorytmu segementacji obraz kolorowy w~przestrzeni kolorów HSV został zamieniony na listę list pozycji pikseli. Następnym krokiem było wyznaczenie cech każdego segmentu tj. zamienić każdą listę pozycji na wektor cech.
+W~wyniku działania przedstawionego algorytmu segmentacji obraz kolorowy w~przestrzeni kolorów HSV został zamieniony na listę list pozycji pikseli. Następnym krokiem było wyznaczenie cech każdego segmentu tj. zamienić każdą listę pozycji na wektor cech.
 
 \subsubsection{Deskryptory obszarów jednorodnych}
 Podstawowymi własnościami segmentów są ogólne cechy geometryczne takie jak powierzchnia obszaru, długość konturu, długość rzutu pionowego i poziomego, środek ciężkości segmentu czy średnica najmniejszego okręgu opisanego na obszarze~\cite{perm:wyklad}. Na ich podstawie można obliczyć bardziej zaawansowane wskaźniki kształtu jak współczynnik zwartości obszaru czy stosunek długości boków minimalnego prostokąta opisanego na segmencie. Jeszcze innym podejściem jest obliczenie współczynników transformaty Fouriera funkcji opisującej zmienność krzywizny brzegu segmentu~\cite{pobr:wyklad}.
@@ -37,7 +37,7 @@ W~ przygotowanym rozwiązaniu, każdy z~utworzonych segmentów opisywany jest pr
 \begin{itemize}
     \item pole powierzchni,
     \item kolor,
-    \item środek cięzkości segmentu,
+    \item środek ciężkości segmentu,
     \item największy prostokąt opisany na segmencie,
     \item współczynnik szerokości do wysokości segmentu,
     \item niezmiennicze momenty od $\phi_{2}$ do $\phi_{6}$.
@@ -65,4 +65,4 @@ Do badania tekstur można wykorzystać takie narzędzia jak macierz współwyst�
 
 Innym podejściem jest odrzucenie jawnych deskryptorów opisujących cechy obrazu i~zastosowanie uczenia maszynowego do automatycznego wykrywania cech. Najlepszym tego typu narzędziem jest splotowa sieć neuronowa. Każda warstwa splotowa przyjmuje na wejściu obraz lub mapę cech niższego poziomu i~tworzy nowy zbiór nowych map cech. Wyższe warstwy sieci splotowej agregują większe obszary obrazu. 
 
-Uzyskane zbiory filtrów i~cech są optymalizowane względem konkretnego zestawu danych uczących, dlatego niekoniecznie muszą być łatwe w~ludzkiej iterpretacji~\cite{perm:wyklad}.
+Uzyskane zbiory filtrów i~cech są optymalizowane względem konkretnego zestawu danych uczących, dlatego niekoniecznie muszą być łatwe w~ludzkiej interpretacji~\cite{perm:wyklad}.

@@ -58,7 +58,7 @@ W~stworzonym rozwiązaniu, algorytm interpolacji dwuliniowej jest implementowany
     \label{fig:nearestneighbour-result}
 \end{figure}
 
-Obrazy przetworzone za pomocą algorytmu interpolacją najbliższego sąsiada cechują się blokowatością. Brak rozmycia powoduje że obraz traci naturalny wygląd. Jest to jednak metoda najszybsza, warta rozważenia w~zadanich automatycznego wykrywania obiektów.
+Obrazy przetworzone za pomocą algorytmu interpolacją najbliższego sąsiada cechują się blokowatością. Brak rozmycia powoduje że obraz traci naturalny wygląd. Jest to jednak metoda najszybsza, warta rozważenia w~zadaniach automatycznego wykrywania obiektów.
 
 \subsubsection{Interpolacja dwuliniowa}
 Algorytm interpolacji dwuliniowej jest algorytmem nieadaptacyjnym, nieco bardziej zaawansowanym niż pokrewny algorytm najbliższego sąsiada. Wartość każdego piksela obrazu wynikowego jest obliczana na podstawie czterech sąsiednich punktów obrazu wejściowego~\cite{algorytmy:bilinear}.
@@ -108,7 +108,7 @@ Interpolacja dwukubiczna jest najczęściej wykorzystywanym algorytmem zmiany ro
     \label{fig:bicubic-example}
 \end{figure}
 
-Poglądowo, zasada działania algorytmu została przedstawiona na rysunku~\ref{fig:bicubic-example}. Do wyznaczenia wartości jasności danego piksela, algorytm bierze pod uwagę szesnaście pikseli w~bezpośrednim otoczeniu wyznaczonej pozycji $(x,y)$ piksela. Podobnie jak w~alogrytmie dwuliniowym, w~pierwszej kolejności dokonywana jest interpolacja w~osi poziomej, tym razem jednak czterokrotnie, dla czterech rzędzów pikseli. Funkcje jasności są lokalnie interpolowane wielomianem trzeciego stopnia. Następnym krokiem algorytmu jest ponowna interpolacja, tym razem w~osi pionowej. Operację należy powtórzyć dla każdej zmiennej składowej obrazu.
+Poglądowo, zasada działania algorytmu została przedstawiona na rysunku~\ref{fig:bicubic-example}. Do wyznaczenia wartości jasności danego piksela, algorytm bierze pod uwagę szesnaście pikseli w~bezpośrednim otoczeniu wyznaczonej pozycji $(x,y)$ piksela. Podobnie jak w~algorytmie dwuliniowym, w~pierwszej kolejności dokonywana jest interpolacja w~osi poziomej, tym razem jednak czterokrotnie, dla czterech rzędów pikseli. Funkcje jasności są lokalnie interpolowane wielomianem trzeciego stopnia. Następnym krokiem algorytmu jest ponowna interpolacja, tym razem w~osi pionowej. Operację należy powtórzyć dla każdej zmiennej składowej obrazu.
 
 Przygotowany system udostępnia klasę realizującą algorytm interpolacji dwukubicznej o~nazwie \texttt{POBR::BicubicInterpolationResizer}. Na rysunku~\ref{fig:bicubic-result} zostały przedstawione wyniki działania algorytmu w~zadaniu zmniejszania oraz zwiększania oryginalnego obrazka.
 
@@ -123,7 +123,7 @@ Przygotowany system udostępnia klasę realizującą algorytm interpolacji dwuku
     \label{fig:bicubic-result}
 \end{figure}
 
-Obrazki otrzymane w~wyniku działania algortymu są najprzyjmeniejsze dla oka. Krawędzie są naturalnie rozmyte. Jedyną wadą tego algorytmu skalowania jest czas jego trwania. Algorytm ten zdecydowanie nie nadaje się do przetwarzania obrazów w~czasie rzeczywistym.
+Obrazki otrzymane w~wyniku działania algorytmu są najprzyjemniejsze dla oka. Krawędzie są naturalnie rozmyte. Jedyną wadą tego algorytmu skalowania jest czas jego trwania. Algorytm ten zdecydowanie nie nadaje się do przetwarzania obrazów w~czasie rzeczywistym.
 
 W~celu wyboru algorytmu zmiany rozmiaru obrazka do projektowanego systemu wykrywania, przeprowadziłem eksperyment porównawczy. Pojedynczy obrazek o~wielkości 200x200px został powiększony przez każdy z~trzech algorytmów do wielu różnych rozmiarów. Następnie porównano wyniki oraz czasy przetwarzania. 
 
@@ -207,7 +207,7 @@ Wartość funkcji jasności nowego piksela przefiltrowanego oblicza się na pods
 Ciekawym zagadnieniem w~filtracji tego typu jest zachowanie algorytmu na brzegach obrazu, gdzie nie każdy piksel ma pełne sąsiedztwo. Algorytm może przyjąć jedną z~wielu strategii ekstrapolacji obrazu. W~OpenCV~\cite{opencv} zaimplementowano następujące strategie:
 \begin{itemize}
     \item \emph{BORDER\_{}REPLICATE} -- algorytm powiela piksele brzegowe tyle razy, ile wynosi połowa okna przetwarzania filtru,
-    \item \emph{BORDER\_{}REFLECT} -- algorytm lustrzanie odbija piksele znajdujące się przy granicy obrazka,
+    \item \emph{BORDER\_{}REFLECT} -- algorytm dokonuje lustrzanego odbicia pikseli znajdujących się przy granicy obrazka,
     \item \emph{BORDER\_{}WRAP} -- algorytm zawija obraz i~korzysta z~pikseli znajdujących się po drugiej stronie obrazka,
     \item \emph{BORDER\_{}CONSTANT} -- algorytm wypełnia brakujące piksele pewną podaną stałą wartością.
 \end{itemize}
@@ -236,7 +236,7 @@ $$
 
 Rezultaty filtracji zostały przedstawione na rysunku~\ref{fig:filters-result}. Na ostatnim rysunku nadal dość dobrze można rozróżnić poszczególne elementy znaku graficznego.
 
-Celem przedstawionego procesu filtracji było odfiltrowanie zakłóceń przy zachowaniu widocznych granic pomiędzy poszczególnymi kolorami znaku graficznego. Dzięki temu, w~dalszych krokach możliwym będzie przeprowadzenie segmentacji opartej o~różnice w~jasności pikseli. Innym podejściem mogłoby być przeprowadzanie  takiej filtracji, której celem byłoby wyeksponowanie krawędzi w~obrazie, tak aby móc przeprowadzić segmentację konturową. Filtry realizujące tego typu operacje nazyawne są filtrami konturowymi. Przykładowym filtrem tego typu jest filtr Sobela oraz filtr Prewitta.
+Celem przedstawionego procesu filtracji było odfiltrowanie zakłóceń przy zachowaniu widocznych granic pomiędzy poszczególnymi kolorami znaku graficznego. Dzięki temu, w~dalszych krokach możliwym będzie przeprowadzenie segmentacji opartej o~różnice w~jasności pikseli. Innym podejściem mogłoby być przeprowadzanie  takiej filtracji, której celem byłoby wyeksponowanie krawędzi w~obrazie, tak aby móc przeprowadzić segmentację konturową. Filtry realizujące tego typu operacje nazywane są filtrami konturowymi. Przykładowym filtrem tego typu jest filtr Sobela oraz filtr Prewitta.
 
 \begin{figure}[H]
     \centering
