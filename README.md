@@ -1,6 +1,9 @@
 # POBR-Projekt
 ## Projekt z Przetwarzania Cyfrowego Obrazów
 
+### Ocena projektu
+Projekt oceniony został na 10/10 punktów.
+
 ### Terminy Projektowe:
 - 5 maja - ostateczny termin na uzyskanie akceptacji tematu zadania projektowego
 - 9 czerwca - termin oddania zrealizowanego projektu
